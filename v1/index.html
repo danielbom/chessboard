@@ -903,7 +903,7 @@
 
       const observer = {
         callbacks: [],
-        listen() {
+        listen(callback) {
           this.callbacks.push(callback)
           return () => {
             this.callbacks = this.callbacks.filter((it) => it !== callback)
@@ -983,31 +983,54 @@
       const move$ = {
         current: 0,
         moves: [],
+        moving: false,
         startup() {
-          document.getElementById('reset').addEventListener('click', () => board.reset())
+          document.getElementById('reset').addEventListener('click', () => this.reset())
           document.getElementById('next').addEventListener('click', () => this.next())
           document.getElementById('previous').addEventListener('click', () => this.previous())
           board.listen((event, args) => {
             // TODO: Allow random moves without break the game
             if (event === 'move') {
-              this.moves.push(args)
+              if (!this.moving) {
+                this.moves.push(args)
+              }
             }
           })
         },
         next() {
+          if (this.moves.length > 0) {
+            this.reset()
+          }
           if (this.current < moves.length) {
+            this.moving = true
             const { y1, x1, y2, x2 } = moves[this.current++]
             board.move(y1, x1, y2, x2)
+            this.moving = false
           }
         },
+        reset() {
+          const last = this.current
+          board.reset()
+          this.current = 0
+          while (this.current < last) {
+            this.next()
+          }
+          this.moves = []
+        },
         previous() {
+          console.log(this)
+          if (this.moves.length > 0) {
+            this.moves.pop()
+            const moves = [...this.moves]
+            this.reset()
+            moves.forEach(([y1, x1, y2, x2]) => {
+              board.move(y1, x1, y2, x2)
+            })
+            return
+          }
           if (this.current > 0) {
-            const last = --this.current
-            board.reset()
-            this.current = 0
-            while (this.current < last) {
-              this.next()
-            }
+            this.current--
+            this.reset()
           }
         },
       }

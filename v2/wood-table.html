@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wood Table</title>
+    <style>
+      /* CSS */
+      .wood-frame {
+        --thickness: 18px; /* border thickness */
+        --radius: 12px; /* outer corner radius */
+        --wood-dark: #6b3f21;
+        --wood-mid: #8b5a2b;
+        --wood-light: #c3966b;
+
+        display: inline-block; /* shrink-wrap to board size */
+        padding: var(--thickness);
+        border-radius: var(--radius);
+        background:
+    /* slight top-to-bottom shading */ linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.18),
+            rgba(255, 255, 255, 0.03)
+          ),
+          /* wood grain stripes */
+            repeating-linear-gradient(
+              -25deg,
+              var(--wood-mid) 0 6px,
+              var(--wood-dark) 6px 10px,
+              var(--wood-light) 10px 14px
+            );
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35), /* drop shadow */ inset 0 2px 0 rgba(255, 255, 255, 0.06); /* subtle rim highlight */
+        /* keep contents from overflowing rounded corners */
+        overflow: hidden;
+      }
+
+      /* inner area where your actual board goes */
+      .wood-frame .board {
+        width: 320px; /* set your board size */
+        height: 320px;
+        border-radius: 6px;
+        background: #f4ecd8; /* light inner "mat" color */
+        box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.06);
+        display: grid;
+        place-items: center;
+      }
+
+      /* optional: responsive smaller border on small screens */
+      @media (max-width: 420px) {
+        .wood-frame {
+          --thickness: 10px;
+        }
+        .wood-frame .board {
+          width: 260px;
+          height: 260px;
+        }
+      }
+    </style>
+    <style>
+      /* Polished wood frame style */
+      .wood-frame.alt-style {
+        --thickness: 20px;
+        --radius: 14px;
+
+        display: inline-block;
+        padding: var(--thickness);
+        border-radius: var(--radius);
+        background: radial-gradient(circle at top left, #d9a066, #8b5a2b),
+          linear-gradient(135deg, #a0522d 0%, #6b4226 100%);
+        background-blend-mode: multiply;
+
+        box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3), /* subtle highlight */ inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+          /* inner shadow */ 0 6px 16px rgba(0, 0, 0, 0.4); /* outer shadow */
+      }
+
+      .wood-frame.alt-style .board {
+        width: 320px;
+        height: 320px;
+        border-radius: 6px;
+        background: #f0e6d2;
+        box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+        display: grid;
+        place-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HTML -->
+    <div class="wood-frame">
+      <div class="board">
+        <!-- Put your chessboard (SVG, canvas, or grid of squares) here -->
+      </div>
+    </div>
+
+    <div class="wood-frame alt-style">
+      <div class="board">
+        <!-- chessboard goes here -->
+      </div>
+    </div>
+  </body>
+</html>
