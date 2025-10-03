@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess View</title>
+    <style>
+      :root {
+        --color-a: #eaedcc;
+        --color-b: #70974a;
+
+        --black-a: #918b7f;
+        --black-b: #221d1c;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      .col {
+        --size: 100px;
+        width: var(--size);
+        height: var(--size);
+      }
+
+      .row.b .col:nth-child(even),
+      .row.a .col:nth-child(odd) {
+        background: var(--color-a);
+      }
+      .row.b .col:nth-child(odd),
+      .row.a .col:nth-child(even) {
+        background: var(--color-b);
+      }
+
+      .col {
+        position: relative;
+      }
+
+      .position.number {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      .position.letter {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
+      .position {
+        padding: 5px 10px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .row:nth-child(even) .position.number {
+        color: var(--color-a);
+      }
+      .row:nth-child(odd) .position.number {
+        color: var(--color-b);
+      }
+
+      .col:nth-child(odd) .position.letter {
+        color: var(--color-a);
+      }
+      .col:nth-child(even) .position.letter {
+        color: var(--color-b);
+      }
+
+      .piece {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .piece svg {
+        border: 5px solid rgba(0, 0, 0, 0.171);
+        aspect-ratio: 1/1;
+
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .bishop svg {
+        width: 100%;
+        height: 78%;
+      }
+      .knight svg {
+        width: 65%;
+        height: 100%;
+      }
+      .rook svg {
+        width: 100%;
+        height: 70%;
+      }
+      .queen svg {
+        width: 100%;
+        height: 82%;
+      }
+      .king svg {
+        width: 100%;
+        height: 82%;
+      }
+      .pawn svg {
+        width: 100%;
+        height: 68%;
+      }
+
+      .piece.a {
+        color: black;
+      }
+      .piece.b path {
+        stroke-width: 4px;
+        stroke-linejoin: round;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="board">
+      <div class="row a">
+        <div class="col">
+          <span class="position number">8</span>
+          <div class="piece a rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a queen"></div>
+        </div>
+        <div class="col">
+          <div class="piece a king"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a rook"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">7</span>
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">6</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">5</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">4</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">3</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">2</span>
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">1</span>
+          <span class="position letter">a</span>
+          <div class="piece b rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">b</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">c</span>
+        </div>
+        <div class="col">
+          <div class="piece b queen"></div>
+          <span class="position letter">d</span>
+        </div>
+        <div class="col">
+          <div class="piece b king"></div>
+          <span class="position letter">e</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">f</span>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">g</span>
+        </div>
+        <div class="col">
+          <div class="piece b rook"></div>
+          <span class="position letter">h</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="visibility: hidden">
+      <!-- ROOK -->
+      <svg
+        class="rook"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 33.218 33.218"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            d="M28.032,32.193c0.169,0.375,0.35,1.024,0.35,1.024H4.802c0,0,0.192-0.763,0.39-1.157c0.191-0.39,0.986-1.059,0.998-1.082
+		c-0.923-1.025-1.7-2.343-1.567-3.912c0.13-1.576,3.285-4.771,3.303-4.854c-0.183,0-0.293,0-0.311,0
+		c-0.231-0.011-0.933-0.386-0.784-0.873C7,20.727,7.756,20.574,7.98,20.574c0.03,0,0.248,0,0.593,0
+		c0.059-0.098,0.157-0.297,0.157-0.297l1.509-11.683h0.007l-0.137-0.211C9.895,8.386,8.458,8.293,8.471,7.357
+		C8.483,6.343,9.851,6.306,9.89,6.203H9.833c0,0-1.614-0.803-2.721-2.623C6.004,1.759,5.89,0,5.89,0h5.326l-0.379,2.91h3.732
+		L14.192,0h4.77l-0.377,2.91h3.732L21.938,0h5.326c0,0-0.242,2.103-1.22,3.58c-0.978,1.478-2.801,2.623-2.801,2.623
+		s1.398,0.438,1.569,1.133c0.146,0.558-1.029,1.005-1.263,1.015c-0.024,0-0.209,0-0.506,0.002c0,0,1.527,12.139,1.541,12.225
+		c0.466,0,0.761,0,0.797,0c0.223,0,1.03,0.133,1.197,0.744c0.146,0.488-0.603,0.883-0.837,0.894h-0.003
+		c0.016,0.086,2.745,3.256,2.86,4.854c0.11,1.521-0.733,2.904-1.638,3.926C26.997,31.111,27.862,31.818,28.032,32.193z"
+          />
+        </g>
+      </svg>
+
+      <!-- KNIGHT -->
+      <svg
+        class="knight"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 205.482 205.482"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            d="M188.03,113.487c-21.775,11.727-23.851-9.635-23.851-9.635c-18.021-2.093-31.403-22.201-31.403-22.201
+		c-24.312,12.558-10.752,47.996-0.284,61.603c1.396,1.809,2.494,3.747,3.417,5.745h17.354v25.215h24.045v31.269H11.865v-31.269
+		h24.048v-25.215h17.067c-20.803-26.351-15.392-51.211-9.422-67.664C50.767,61.52,60.511,50.644,74.718,39.07
+		c21.122-17.221,60.145-19.375,60.145-19.375c0.255-1.463,1.448-3.177,2.974-4.926c-4.688,0.127-10.427,0.52-16.964,1.362
+		c-4.469,0.872-9.387,1.356-14.378,2.816c-5.104,1.105-10.285,2.878-15.581,4.912c-5.29,1.974-10.489,4.775-15.628,7.692
+		c-4.876,3.402-10.06,6.537-14.156,11.018c-4.702,3.83-8.127,8.819-11.645,13.586c-3.673,4.682-5.479,10.4-8.228,15.321
+		c-2.039,5.249-3.177,10.666-4.714,15.617c-1.392,4.994-1.368,9.992-2.069,14.49c-0.594,4.492-1.049,8.629-0.704,12.317
+		c0.116,3.688,0.195,6.928,0.278,9.563c0.156,5.297,0.254,8.335,0.254,8.335l-0.733,0.07c0,0-0.629-2.967-1.457-8.311
+		c-0.393-2.671-0.877-5.923-1.41-9.682c-0.807-3.735-0.831-8.015-0.479-12.726c0.266-3.369,0.313-7.037,0.629-10.796l-8.801-0.189
+		l9.014-11.032l-9.46-1.369L35.122,67.41l-9.916-3.154l13.976-7.669L28.59,53.434l18.256-5.872l-12.62-3.606L54.73,38.32
+		l-11.275-5.181l20.729-2.707L54.048,24.58l25.307-2.651c0.112-0.059,0.239-0.127,0.354-0.163l-11.691-5.296l26.596-2.258L82.44,7.9
+		l50.312,4.007c2.72,0.106,5.096,0.319,7.259,0.556C146.478,6.271,156.632,0,156.632,0c-2.08,2.084-2.932,13.409-2.932,13.409
+		c2.099-3.771,8.795-7.542,8.795-7.542c-3.759,8.781,0,27.624,0,27.624c10.899,10.899,23.046,48.578,23.046,48.578l4.623,6.694
+		C196.01,97.173,193.852,110.354,188.03,113.487z"
+          />
+        </g>
+      </svg>
+
+      <!-- BISHOP -->
+      <svg
+        class="bishop"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 226.417 226.417"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            d="M175.827,200.452v25.966H50.59v-25.966H175.827z M158.438,166.801h-13.748v-55.218h13.748V85.615h-16.893
+		c5.627-6.366,9.066-14.709,9.066-23.871C150.611,41.807,114.506,0,114.506,0S78.415,41.807,78.415,61.744
+		c0,9.171,3.443,17.517,9.073,23.871H67.973v25.969h13.746v55.218H67.973v25.973h90.464V166.801L158.438,166.801z"
+          />
+        </g>
+      </svg>
+
+      <!-- QUEN -->
+      <svg
+        class="queen"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 36.27 36.27"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            d="M28.005,32.177v4.093H8.265v-4.093H28.005z M11.006,31.205h14.258v-4.094H11.006V31.205z M11.291,9.366
+		c-1.889-2.089-2.102-4.719-0.477-5.874c1.045-0.742,2.592-0.686,4.067-0.003C14.961,1.55,16.379,0,18.133,0s3.172,1.55,3.252,3.489
+		c1.476-0.683,3.022-0.739,4.067,0.003c1.625,1.155,1.412,3.785-0.478,5.874c-0.321,0.356-0.819,0.729-1.325,1.056h1.61v4.093
+		h-2.165v11.688h-9.924V14.515h-2.167v-4.093h1.521C12.031,10.051,11.553,9.656,11.291,9.366z M21.071,3.657h-0.016v0.008
+		C21.061,3.662,21.065,3.659,21.071,3.657z M15.199,3.657c0.024,0.013,0.049,0.029,0.074,0.042V3.657H15.199z"
+          />
+        </g>
+      </svg>
+
+      <!-- KING -->
+      <svg
+        class="king"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 41.325 41.325"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            d="M27.615,40.452c0.106,0.283,0.143,0.873,0.143,0.873H13.571c0,0,0.002-0.595,0.127-0.896
+		c0.125-0.299,0.498-0.576,0.498-0.576h0.05c0.02-0.063,0.039-0.133,0.056-0.203H14.28c-0.591-0.772-0.947-1.92-0.862-3.104
+		s0.949-2.379,1.532-3.299l0.023-0.09c-0.021-0.068,0.006-0.052-0.005-0.123c-0.169-0.043-0.484-0.32-0.394-0.66
+		c0.113-0.461,0.526-0.562,0.672-0.562h0.073l0.026-0.092l-0.005-0.093c1.442-3.293,2.606-5.104,2.997-11.321
+		c-0.042-0.074-0.084-0.148-0.122-0.222c-0.752,0-1.372,0-1.401-0.002c-0.098-0.011-0.801-0.418-0.739-1.068
+		c0.072-0.812,0.799-1.105,0.893-1.105c0.022,0,0.276,0,0.64,0l0.209-3.7c0,0-2.284-3.409-2.638-3.979
+		c-0.254-0.413-0.486-0.945-0.486-1.472c0-1.196,0.951-2.17,2.123-2.17c0.339,0,0.866,0.001,1.205,0.001c0,0,0-0.386,0-0.531
+		c0-0.345,0.272-0.622,0.609-0.622c0.658,0,3.525,0,4.07,0c0.335,0,0.606,0.277,0.606,0.622c0,0.146,0,0.531,0,0.531
+		c0.34,0,0.865-0.001,1.204-0.001c1.173,0,2.123,0.973,2.123,2.17c0,0.525-0.229,1.059-0.486,1.472
+		c-0.354,0.57-2.608,3.889-2.608,3.889l0.181,3.792c0.377,0,0.634,0,0.655,0c0.094,0,0.781,0.349,0.854,1.163
+		c0.062,0.648-0.601,1.001-0.698,1.012c-0.027,0.002-0.645,0.002-1.406,0.002c-0.011,0.155-0.047,0.325-0.114,0.511
+		c0.415,5.979,1.771,7.791,3.188,11.032l0.003,0.064l-0.002,0.116c0.066,0,0.108,0,0.12,0c0.146,0,0.56,0.103,0.672,0.562
+		c0.098,0.369-0.277,0.664-0.433,0.67l-0.078,0.076c0.008,0.072,0.062,0.08,0.058,0.17c0.663,1.006,1.297,2.301,1.372,3.486
+		c0.066,1.104-0.239,1.998-0.773,2.746c0.02,0.129,0.025,0.248,0.021,0.354C27.24,39.95,27.522,40.212,27.615,40.452z M18.824,3.601
+		c0.546-0.559,1.191-0.803,1.445-0.546c0.25,0.26,0.012,0.921-0.534,1.477c-0.084,0.086-0.173,0.165-0.259,0.233
+		c0.378,0.237,0.825,0.372,1.298,0.372c0.47-0.001,0.909-0.133,1.285-0.358c-0.095-0.074-0.188-0.155-0.275-0.248
+		c-0.546-0.559-0.785-1.217-0.534-1.476c0.251-0.258,0.898-0.013,1.444,0.546c0.09,0.091,0.17,0.185,0.242,0.28
+		c0.224-0.385,0.352-0.833,0.352-1.312c0-0.484-0.131-0.938-0.361-1.325c-0.062,0.081-0.135,0.165-0.214,0.243
+		c-0.546,0.56-1.192,0.803-1.443,0.545c-0.251-0.256-0.014-0.917,0.532-1.476c0.075-0.076,0.151-0.146,0.229-0.21
+		C21.66,0.125,21.231,0,20.773,0c-0.457,0-0.886,0.127-1.256,0.346c0.089,0.069,0.178,0.15,0.261,0.236
+		c0.545,0.56,0.785,1.22,0.533,1.477c-0.251,0.256-0.897,0.013-1.443-0.544c-0.089-0.093-0.17-0.186-0.242-0.279
+		c-0.23,0.388-0.364,0.845-0.364,1.335c0,0.466,0.123,0.907,0.336,1.285C18.668,3.77,18.741,3.683,18.824,3.601z"
+          />
+        </g>
+      </svg>
+
+      <!-- PAWN -->
+      <svg
+        class="pawn"
+        fill="currentColor"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="800px"
+        height="800px"
+        viewBox="0 0 216.062 216.062"
+      >
+        <g>
+          <path
+            d="M170.07,190.338v25.724H45.992v-25.724H170.07z M63.23,181.176h89.604v-25.723H63.23V181.176z M76.849,80.986v64.926
+          h62.368V80.986c9.41-8.505,15.344-20.779,15.344-34.454c0-25.7-20.823-46.533-46.529-46.533S61.499,20.833,61.499,46.533
+          C61.499,60.213,67.442,72.481,76.849,80.986z"
+          />
+        </g>
+      </svg>
+    </div>
+  </body>
+
+  <script defer>
+    const rook = document.querySelector('svg.rook')
+    const knight = document.querySelector('svg.knight')
+    const bishop = document.querySelector('svg.bishop')
+    const queen = document.querySelector('svg.queen')
+    const king = document.querySelector('svg.king')
+    const pawn = document.querySelector('svg.pawn')
+    document.querySelectorAll('.board .rook').forEach((el) => el.appendChild(rook.cloneNode(true)))
+    document.querySelectorAll('.board .knight').forEach((el) => el.appendChild(knight.cloneNode(true)))
+    document.querySelectorAll('.board .bishop').forEach((el) => el.appendChild(bishop.cloneNode(true)))
+    document.querySelectorAll('.board .queen').forEach((el) => el.appendChild(queen.cloneNode(true)))
+    document.querySelectorAll('.board .king').forEach((el) => el.appendChild(king.cloneNode(true)))
+    document.querySelectorAll('.board .pawn').forEach((el) => el.appendChild(pawn.cloneNode(true)))
+  </script>
+</html>

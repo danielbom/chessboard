@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess View</title>
+    <style>
+      /* CHESS PIECES */
+      /* https://www.svgrepo.com/vectors/chess-piece/ */
+
+      :root {
+        --color-a: #eaedcc;
+        --color-b: #70974a;
+
+        --black-a: #918b7f;
+        --black-b: #221d1c;
+
+        --white-a: #f8efe1;
+        --white-b: #bca992;
+
+        --highlight-a: #f8f970;
+        --highlight-b: #bbce2f;
+
+        --danger-a: #f77861;
+        --danger-b: #de6848;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      .col {
+        --size: 100px;
+        width: var(--size);
+        height: var(--size);
+      }
+
+      .row.b .col:nth-child(even),
+      .row.a .col:nth-child(odd) {
+        background: var(--color-a);
+      }
+      .row.b .col:nth-child(odd),
+      .row.a .col:nth-child(even) {
+        background: var(--color-b);
+      }
+
+      .row.b .col.danger:nth-child(even),
+      .row.a .col.danger:nth-child(odd) {
+        background: var(--danger-a);
+      }
+      .row.b .col.danger:nth-child(odd),
+      .row.a .col.danger:nth-child(even) {
+        background: var(--danger-b);
+      }
+
+      .row.b .col.highlight:nth-child(even),
+      .row.a .col.highlight:nth-child(odd) {
+        background: var(--highlight-a);
+      }
+      .row.b .col.highlight:nth-child(odd),
+      .row.a .col.highlight:nth-child(even) {
+        background: var(--highlight-b);
+      }
+
+      .col {
+        position: relative;
+      }
+
+      .position.number {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      .position.letter {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
+      .position {
+        padding: 5px 10px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        user-select: none;
+      }
+
+      .row:nth-child(even) .position.number {
+        color: var(--color-a);
+      }
+      .row:nth-child(odd) .position.number {
+        color: var(--color-b);
+      }
+
+      .col:nth-child(odd) .position.letter {
+        color: var(--color-a);
+      }
+      .col:nth-child(even) .position.letter {
+        color: var(--color-b);
+      }
+
+      .piece {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1/1;
+        cursor: grab;
+      }
+
+      .piece.pawn {
+        -webkit-mask: url(./pieces/pawn.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/pawn.svg) no-repeat center;
+        mask-size: cover;
+        width: 72%;
+        height: 72%;
+        stroke: black;
+        stroke-width: 5px;
+      }
+      .piece.king {
+        -webkit-mask: url(./pieces/king.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/king.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.queen {
+        -webkit-mask: url(./pieces/queen.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/queen.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.bishop {
+        -webkit-mask: url(./pieces/bishop.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/bishop.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.knight {
+        -webkit-mask: url(./pieces/knight.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/knight.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.rook {
+        -webkit-mask: url(./pieces/rook.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/rook.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.a {
+        background: linear-gradient(to right, var(--black-a) 10%, var(--black-b) 50%);
+      }
+      .piece.b {
+        background: linear-gradient(to right, var(--white-a) 10%, var(--white-b) 50%);
+        stroke: black;
+      }
+      .piece.b {
+        stroke-width: 4px;
+        stroke-linejoin: round;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="checked">Checked Moves</button>
+      <button id="danger">Show danger</button>
+    </div>
+    <div class="board">
+      <div class="row a">
+        <div class="col">
+          <span class="position number">8</span>
+          <div class="piece a rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a queen"></div>
+        </div>
+        <div class="col">
+          <div class="piece a king"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a rook"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">7</span>
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">6</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">5</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">4</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">3</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">2</span>
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">1</span>
+          <span class="position letter">a</span>
+          <div class="piece b rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">b</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">c</span>
+        </div>
+        <div class="col">
+          <div class="piece b queen"></div>
+          <span class="position letter">d</span>
+        </div>
+        <div class="col">
+          <div class="piece b king"></div>
+          <span class="position letter">e</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">f</span>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">g</span>
+        </div>
+        <div class="col">
+          <div class="piece b rook"></div>
+          <span class="position letter">h</span>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    class ChessBoardMemory {
+      constructor() {
+        this.pieces = {
+          p: 'pawn',
+          r: 'rook',
+          b: 'bishop',
+          k: 'knight',
+          Q: 'queen',
+          K: 'king',
+        }
+        this.board = [
+          ['ra', 'ka', 'ba', 'Qa', 'Ka', 'ba', 'ka', 'ra'],
+          ['pa', 'pa', 'pa', 'pa', 'pa', 'pa', 'pa', 'pa'],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb'],
+          ['rb', 'kb', 'bb', 'Qb', 'Kb', 'bb', 'kb', 'rb'],
+        ]
+      }
+
+      get(y, x) {
+        if (0 <= y && y < this.board.length && 0 <= x && x < this.board.length) {
+          return this.board[y][x]
+        }
+      }
+
+      set(y, x, piece) {
+        if (0 <= y && y < this.board.length && 0 <= x && x < this.board.length) {
+          this.board[y][x] = piece
+        }
+      }
+
+      move(y1, x1, y2, x2) {
+        const p1 = this.get(y1, x1)
+        if (!p1) return
+        this.set(y1, x1, '  ')
+        this.set(y2, x2, p1)
+      }
+
+      canMove(y1, x1, y2, x2) {
+        const p1 = this.get(y1, x1)
+        if (!p1) return false
+        return true
+      }
+    }
+  </script>
+
+  <script>
+    class ChessBoardElements {
+      constructor() {
+        this.board = [[]]
+        document.querySelectorAll('.board .col').forEach((el) => {
+          if (this.board[this.board.length - 1].length === 8) {
+            this.board.push([])
+          }
+          this.board[this.board.length - 1].push(el)
+        })
+      }
+
+      get(y, x) {
+        return [this.board[y][x], this.board[y][x].querySelector('.piece')]
+      }
+
+      remove(tile, piece) {
+        tile.removeChild(piece)
+      }
+
+      move(y1, x1, y2, x2) {
+        const [_, p1] = this.get(y1, x1)
+        const [t2, p2] = this.get(y2, x2)
+        if (p2) this.remove(t2, p2)
+        t2.appendChild(p1)
+      }
+
+      canMove(y1, x1, y2, x2) {
+        return true
+      }
+    }
+  </script>
+
+  <script>
+    class ChessBoardChain {
+      constructor(chessBoards) {
+        this.chessBoards = chessBoards
+      }
+
+      move(y1, x1, y2, x2) {
+        this.chessBoards.forEach((chessBoard) => chessBoard.move(y1, x1, y2, x2))
+      }
+
+      canMove(y1, x1, y2, x2) {
+        return this.chessBoards.every((chessBoard) => chessBoard.canMove(y1, x1, y2, x2))
+      }
+    }
+  </script>
+
+  <script>
+    // Setup
+    document.querySelectorAll('.board .piece').forEach((el, index) => {
+      el.setAttribute('id', `piece-${index}`)
+      el.setAttribute('draggable', 'true')
+    })
+    document.querySelectorAll('.board .col').forEach((cell, index) => {
+      cell.setAttribute('data-row', `${Math.floor(index / 8)}`)
+      cell.setAttribute('data-col', `${index % 8}`)
+    })
+
+    const DEFAULT_BOARD = document.querySelector('.board').cloneNode(true)
+  </script>
+
+  <script>
+    class PossibleMoves {
+      constructor(view) {
+        /** @type {ChessBoardMemory} */
+        this.view = view
+
+        this.bishop = [
+          [-1, -1],
+          [-1, +1],
+          [+1, -1],
+          [+1, +1],
+        ]
+        this.rook = [
+          [-1, 0],
+          [0, -1],
+          [0, +1],
+          [+1, 0],
+        ]
+        this.knight = [
+          [1, 2],
+          [2, 1],
+          [-1, 2],
+          [-2, 1],
+          [1, -2],
+          [2, -1],
+          [-1, 2],
+          [2, -1],
+          [1, -2],
+          [-2, 1],
+          [-1, -2],
+          [-2, -1],
+        ]
+
+        this.lastMoves = []
+      }
+
+      /**
+       * @param {number} y
+       * @param {number} x
+       * @returns {boolean}
+       */
+      occupiedBy(y, x) {
+        const piece = this.view.get(y, x)
+        if (!piece) return
+        if (piece === '  ') return ''
+        return piece
+      }
+
+      capturable(y, x, piece) {
+        const other = this.occupiedBy(y, x)
+        if (!other) return false
+        if (other === '') return false
+        return other[1] !== piece[1]
+      }
+
+      /**
+       * @param {string} piece
+       * @param {number} y
+       * @param {number} x
+       */
+      getMoves(y, x) {
+        const piece = this.occupiedBy(y, x)
+        if (!piece) return
+
+        const result = []
+        const move = (y, x) => this.occupiedBy(y, x) === '' && (result.push([y, x]), true)
+        const capture = (y, x) => this.capturable(y, x, piece) === true && (result.push([y, x]), true)
+        this.lastMoves = result
+        switch (this.view.pieces[piece[0]]) {
+          case 'pawn': {
+            const doubleRow = piece[1] === 'a' ? 1 : 6
+            const dir = piece[1] === 'a' ? 1 : -1
+            capture(y + 1 * dir, x - 1)
+            capture(y + 1 * dir, x + 1)
+            if (!move(y + 1 * dir, x)) return result
+            if (doubleRow === y && !move(y + 2 * dir, x)) return result
+            return result
+          }
+          case 'king': {
+            this.bishop.forEach(([j, i]) => move(y + j, x + i))
+            this.bishop.forEach(([j, i]) => capture(y + j, x + i))
+            this.rook.forEach(([j, i]) => move(y + j, x + i))
+            this.rook.forEach(([j, i]) => capture(y + j, x + i))
+            return result
+          }
+          case 'queen': {
+            this.rook.forEach(([j, i]) => {
+              let k = 1
+              for (; k < 8; k++) {
+                if (!move(y + j * k, x + i * k)) break
+              }
+              capture(y + j * k, x + i * k)
+            })
+            this.bishop.forEach(([j, i]) => {
+              let k = 1
+              for (; k < 8; k++) {
+                if (!move(y + j * k, x + i * k)) break
+              }
+              capture(y + j * k, x + i * k)
+            })
+            return result
+          }
+          case 'rook': {
+            this.rook.forEach(([j, i]) => {
+              let k = 1
+              for (; k < 8; k++) {
+                if (!move(y + j * k, x + i * k)) break
+              }
+              capture(y + j * k, x + i * k)
+            })
+            return result
+          }
+          case 'bishop': {
+            this.bishop.forEach(([j, i]) => {
+              let k = 1
+              for (; k < 8; k++) {
+                if (!move(y + j * k, x + i * k)) break
+              }
+              capture(y + j * k, x + i * k)
+            })
+            return result
+          }
+          case 'knight': {
+            this.knight.forEach(([j, i]) => {
+              move(y + j, x + i)
+              capture(y + j, x + i)
+            })
+            return result
+          }
+        }
+        return result
+      }
+    }
+  </script>
+
+  <script>
+    class ChessBoardCheckedMoves {
+      constructor(possibleMoves) {
+        /** @type {PossibleMoves} */
+        this.possibleMoves = possibleMoves
+        this.enabled = true
+      }
+
+      move() {}
+
+      canMove(y1, x1, y2, x2) {
+        if (!this.enabled) return true
+        return this.possibleMoves.getMoves(y1, x1).find(([y, x]) => y === y2 && x === x2)
+      }
+    }
+  </script>
+
+  <script>
+    class HighlightMoves {
+      constructor(possibleMoves, view, elems) {
+        /** @type {PossibleMoves} */
+        this.possibleMoves = possibleMoves
+        /** @type {ChessBoardMemory} */
+        this.view = view
+        /** @type {ChessBoardElements} */
+        this.elems = elems
+
+        this.active = false
+      }
+
+      clear(className) {
+        if (!this.active) return
+        document.querySelectorAll(`.board .highlight`).forEach((el) => {
+          el.classList.remove('highlight')
+        })
+        this.active = false
+      }
+
+      tryHighlight(y, x, className = 'highlight') {
+        const [col, piece] = this.elems.get(y, x)
+        col.classList.add(className)
+        this.active = true
+      }
+
+      show(y, x) {
+        const piece = this.view.get(y, x)
+        if (!piece) return false
+        if (piece === '  ') return false
+        this.clear()
+        this.possibleMoves.getMoves(y, x).forEach((move) => {
+          this.tryHighlight(move[0], move[1])
+        })
+        return this.possibleMoves.lastMoves.length > 0
+      }
+
+      showDanger() {
+        for (let y = 0; y < 8; y++) {
+          for (let x = 0; x < 8; x++) {
+            const piece = this.view.get(y, x)
+            if (!piece) continue
+            if (piece === '  ') continue
+            const name = this.view.pieces[piece[0]]
+            if (name === 'pawn') continue
+            this.possibleMoves.getMoves(y, x).forEach((move) => {
+              this.tryHighlight(move[0], move[1], 'danger')
+            })
+          }
+        }
+      }
+
+      clearDanger() {
+        document.querySelectorAll('.board .danger').forEach((el) => {
+          el.classList.remove('danger')
+        })
+      }
+    }
+  </script>
+
+  <script>
+    function addEventsToBoard(board$) {
+      const previous = {
+        pos: null,
+      }
+      const view = new ChessBoardMemory()
+      const elems = new ChessBoardElements()
+      const possibleMoves = new PossibleMoves(view)
+      const highlight = new HighlightMoves(possibleMoves, view, elems)
+      const checkedMoves = new ChessBoardCheckedMoves(possibleMoves)
+      const chessBoard = new ChessBoardChain([view, elems, checkedMoves])
+
+      const showDanger = {
+        enabled: false,
+        change(value) {
+          this.enabled = value
+          if (value) {
+            danger.innerText = 'Show Danger (on)'
+          } else {
+            danger.innerText = 'Show Danger (off)'
+          }
+        },
+        toggle() {
+          this.change(!this.enabled)
+          if (this.enabled) {
+            highlight.showDanger()
+          } else {
+            highlight.clearDanger()
+          }
+        },
+        refresh() {
+          if (this.showDanger) {
+            highlight.clearDanger()
+            highlight.showDanger()
+          }
+        },
+      }
+      danger.addEventListener('click', () => showDanger.toggle())
+      showDanger.change(showDanger.enabled)
+
+      function move(y1, x1, y2, x2) {
+        if (chessBoard.canMove(y1, x1, y2, x2)) {
+          chessBoard.move(y1, x1, y2, x2)
+          showDanger.refresh()
+        }
+      }
+
+      function changeCheckedMoves(value) {
+        checkedMoves.enabled = value
+        if (value) {
+          checked.innerText = 'Checked Moves (on)'
+        } else {
+          checked.innerText = 'Checked Moves (off)'
+        }
+      }
+
+      checked.addEventListener('click', () => changeCheckedMoves(!checkedMoves.enabled))
+      changeCheckedMoves(checkedMoves.enabled)
+
+      // Make pieces draggable
+      board$.querySelectorAll('.piece').forEach((el, index) => {
+        el.addEventListener('dragstart', (e) => {
+          const cell = el.parentNode
+          const y = +cell.getAttribute('data-row')
+          const x = +cell.getAttribute('data-col')
+          highlight.show(y, x)
+          e.dataTransfer.setData('text/plain', el.getAttribute('id'))
+        })
+      })
+
+      // Allow dropping on columns (squares)
+      board$.querySelectorAll('.col').forEach((cell, index) => {
+        const y2 = +cell.getAttribute('data-row')
+        const x2 = +cell.getAttribute('data-col')
+
+        cell.addEventListener('dragover', (e) => {
+          e.preventDefault() // allows drop
+        })
+
+        cell.addEventListener('drop', (e) => {
+          e.preventDefault()
+          const id = e.dataTransfer.getData('text/plain')
+          const draggedPiece = document.getElementById(id)
+          const draggedCell = draggedPiece.parentNode
+          const y1 = +draggedCell.getAttribute('data-row')
+          const x1 = +draggedCell.getAttribute('data-col')
+
+          highlight.clear()
+          move(y1, x1, y2, x2)
+          previous.pos = null
+        })
+
+        cell.addEventListener('click', (e) => {
+          if (previous.pos) {
+            const [y1, x1] = previous.pos
+            if (y1 === y2 && x1 === x2) {
+              previous.pos = null
+              return highlight.clear()
+            }
+            highlight.clear()
+            move(y1, x1, y2, x2)
+            previous.pos = null
+          } else {
+            if (highlight.show(y2, x2)) {
+              previous.pos = [y2, x2]
+            }
+          }
+        })
+      })
+    }
+
+    addEventsToBoard(document.querySelector('.board'))
+  </script>
+</html>

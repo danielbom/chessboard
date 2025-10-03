@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess View</title>
+    <style>
+      /* CHESS PIECES */
+      /* https://www.svgrepo.com/vectors/chess-piece/ */
+
+      :root {
+        --color-a: #eaedcc;
+        --color-b: #70974a;
+
+        --black-a: #918b7f;
+        --black-b: #221d1c;
+
+        --white-a: #f8efe1;
+        --white-b: #bca992;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      .col {
+        --size: 100px;
+        width: var(--size);
+        height: var(--size);
+      }
+
+      .row.b .col:nth-child(even),
+      .row.a .col:nth-child(odd) {
+        background: var(--color-a);
+      }
+      .row.b .col:nth-child(odd),
+      .row.a .col:nth-child(even) {
+        background: var(--color-b);
+      }
+
+      .col {
+        position: relative;
+      }
+
+      .position.number {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      .position.letter {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
+      .position {
+        padding: 5px 10px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        user-select: none;
+      }
+
+      .row:nth-child(even) .position.number {
+        color: var(--color-a);
+      }
+      .row:nth-child(odd) .position.number {
+        color: var(--color-b);
+      }
+
+      .col:nth-child(odd) .position.letter {
+        color: var(--color-a);
+      }
+      .col:nth-child(even) .position.letter {
+        color: var(--color-b);
+      }
+
+      .piece {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1/1;
+        cursor: grab;
+      }
+
+      .piece.pawn {
+        -webkit-mask: url(./pieces/pawn.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/pawn.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+        stroke: black;
+        stroke-width: 5px;
+      }
+      .piece.king {
+        -webkit-mask: url(./pieces/king.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/king.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.queen {
+        -webkit-mask: url(./pieces/queen.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/queen.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.bishop {
+        -webkit-mask: url(./pieces/bishop.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/bishop.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.knight {
+        -webkit-mask: url(./pieces/knight.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/knight.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.rook {
+        -webkit-mask: url(./pieces/rook.svg) no-repeat center;
+        -webkit-mask-size: cover;
+        mask: url(./pieces/rook.svg) no-repeat center;
+        mask-size: cover;
+        width: 80%;
+        height: 80%;
+      }
+      .piece.a {
+        background: linear-gradient(to right, var(--black-a) 10%, var(--black-b) 50%);
+      }
+      .piece.b {
+        background: linear-gradient(to right, var(--white-a) 10%, var(--white-b) 50%);
+        stroke: black;
+      }
+      .piece.b {
+        stroke-width: 4px;
+        stroke-linejoin: round;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="board">
+      <div class="row a">
+        <div class="col">
+          <span class="position number">8</span>
+          <div class="piece a rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a queen"></div>
+        </div>
+        <div class="col">
+          <div class="piece a king"></div>
+        </div>
+        <div class="col">
+          <div class="piece a bishop"></div>
+        </div>
+        <div class="col">
+          <div class="piece a knight"></div>
+        </div>
+        <div class="col">
+          <div class="piece a rook"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">7</span>
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece a pawn"></div>
+        </div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">6</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">5</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">4</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">3</span>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row a">
+        <div class="col">
+          <span class="position number">2</span>
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+        <div class="col">
+          <div class="piece b pawn"></div>
+        </div>
+      </div>
+      <div class="row b">
+        <div class="col">
+          <span class="position number">1</span>
+          <span class="position letter">a</span>
+          <div class="piece b rook"></div>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">b</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">c</span>
+        </div>
+        <div class="col">
+          <div class="piece b queen"></div>
+          <span class="position letter">d</span>
+        </div>
+        <div class="col">
+          <div class="piece b king"></div>
+          <span class="position letter">e</span>
+        </div>
+        <div class="col">
+          <div class="piece b bishop"></div>
+          <span class="position letter">f</span>
+        </div>
+        <div class="col">
+          <div class="piece b knight"></div>
+          <span class="position letter">g</span>
+        </div>
+        <div class="col">
+          <div class="piece b rook"></div>
+          <span class="position letter">h</span>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    class ChessBoardMemory {
+      constructor() {
+        this.pieces = {
+          p: 'pawn',
+          r: 'rook',
+          b: 'bishop',
+          k: 'knight',
+          Q: 'queen',
+          K: 'king',
+        }
+        this.board = [
+          ['ra', 'ka', 'ba', 'Qa', 'Ka', 'ba', 'ka', 'ra'],
+          ['pa', 'pa', 'pa', 'pa', 'pa', 'pa', 'pa', 'pa'],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+          ['pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb'],
+          ['rb', 'kb', 'bb', 'Qb', 'Kb', 'bb', 'kb', 'rb'],
+        ]
+      }
+
+      get(y, x) {
+        if (y < this.board.length && x < this.board.length) {
+          return this.board[y][x]
+        }
+      }
+
+      set(y, x, piece) {
+        if (y < this.board.length && x < this.board.length) {
+          this.board[y][x] = piece
+        }
+      }
+
+      move(y1, x1, y2, x2) {
+        const p1 = this.get(y1, x1)
+        if (!p1) return
+        this.set(y1, x1, '  ')
+        this.set(y2, x2, p1)
+      }
+
+      canMove(y1, x1, y2, x2) {
+        const p1 = this.get(y1, x1)
+        if (!p1) return false
+        return true
+      }
+    }
+  </script>
+
+  <script>
+    class ChessBoardElements {
+      constructor() {
+        this.board = [[]]
+        document.querySelectorAll('.board .col').forEach((el) => {
+          if (this.board[this.board.length - 1].length === 8) {
+            this.board.push([])
+          }
+          this.board[this.board.length - 1].push(el)
+        })
+      }
+
+      get(y, x) {
+        if (y < this.board.length && x < this.board.length) {
+          return [this.board[y][x], this.board[y][x].querySelector('.piece')]
+        }
+      }
+
+      remove(tile, piece) {
+        tile.removeChild(piece)
+      }
+
+      move(y1, x1, y2, x2) {
+        const [_, p1] = this.get(y1, x1)
+        if (!p1) return
+        const [t2, p2] = this.get(y2, x2)
+        if (p2) this.remove(t2, p2)
+        t2.appendChild(p1)
+      }
+
+      canMove(y1, x1, y2, x2) {
+        return true
+      }
+    }
+  </script>
+
+  <script>
+    // Setup
+    document.querySelectorAll('.board .piece').forEach((el, index) => {
+      el.setAttribute('id', `piece-${index}`)
+      el.setAttribute('draggable', 'true')
+    })
+    document.querySelectorAll('.board .col').forEach((cell, index) => {
+      cell.setAttribute('data-row', `${Math.floor(index / 8)}`)
+      cell.setAttribute('data-col', `${index % 8}`)
+    })
+
+    const DEFAULT_BOARD = document.querySelector('.board').cloneNode(true)
+  </script>
+
+  <script>
+    function addEventsToBoard(board$) {
+      // Make pieces draggable
+      board$.querySelectorAll('.piece').forEach((el, index) => {
+        el.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', el.getAttribute('id'))
+        })
+      })
+
+      // Allow dropping on columns (squares)
+      board$.querySelectorAll('.col').forEach((cell, index) => {
+        cell.addEventListener('dragover', (e) => {
+          e.preventDefault() // allows drop
+        })
+
+        cell.addEventListener('drop', (e) => {
+          e.preventDefault()
+          const id = e.dataTransfer.getData('text/plain')
+          const draggedPiece = document.getElementById(id)
+          const currentPiece = cell.querySelector('.piece')
+
+          console.log({ draggedPiece, currentPiece }) // replace current with the dragged
+
+          // Move the piece into this cell
+          cell.appendChild(draggedPiece)
+        })
+      })
+    }
+
+    const cbe = new ChessBoardElements()
+    addEventsToBoard(document.querySelector('.board'), cbe)
+  </script>
+</html>
