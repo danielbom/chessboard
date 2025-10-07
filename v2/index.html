@@ -17,7 +17,7 @@
       body {
         margin: 0;
         background-color: #8b5a2b;
-        text-align: center;
+        /* text-align: center; */
         padding: 1rem;
       }
 
@@ -860,7 +860,6 @@
               for (; k < 8; k++) {
                 if (!move(y + j * k, x + i * k)) break
               }
-              capture(y + j * k, x + i * k)
             })
             return result
           }
@@ -913,11 +912,26 @@
     class MoveEvent {
       /** @type {'move'} */
       name = 'move'
-      moved = false
 
       constructor(/** @type {HTMLElement} */ piece, /** @type {HTMLElement} */ to) {
         this.piece = piece
         this.to = to
+      }
+    }
+
+    class MoveRelativeEvent {
+      /** @type {'move'} */
+      name = 'move-relative'
+
+      constructor(y1, x1, y2, x2) {
+        /* @type {number} y1 */
+        this.y1 = y1
+        /* @type {number} x1 */
+        this.x1 = x1
+        /* @type {number} y2 */
+        this.y2 = y2
+        /* @type {number} x2 */
+        this.x2 = x2
       }
     }
 
@@ -956,6 +970,8 @@
       constructor() {
         /** @type {Array<(event: MoveEvent) => void>} */
         this.callbacks = []
+        /** @type {Record<string, HTMLElement | undefined>} */
+        this.ids = {}
       }
 
       startup() {
@@ -978,11 +994,18 @@
             e.preventDefault()
             const id = e.dataTransfer.getData('text/plain')
             const piece = document.getElementById(id)
-            this.emit(new MoveEvent(piece, to))
+            const [x1, y1] = boardView.getSquarePosition(piece.parentNode)
+            const [y2, x2] = boardView.getSquarePosition(to)
+            this.emit(new MoveRelativeEvent(x1, y1, y2, x2))
           })
           to.addEventListener('click', (e) => {
             this.emit(new SquareClickEvent(to))
           })
+        })
+
+        document.querySelectorAll('.board__square').forEach((square) => {
+          const pos = boardView.getSquarePosition(square)
+          this.ids[pos] = square.getAttribute('id')
         })
       }
 
@@ -1013,11 +1036,79 @@
         if (!pieceElement) throw new Error()
         squareElement.appendChild(pieceElement.cloneNode(true))
       }
+
+      move(/** @type {HTMLElement} */ piece, /** @type {HTMLElement} */ to) {
+        to.querySelectorAll('.piece').forEach((el) => {
+          to.removeChild(el)
+        })
+        to.appendChild(piece)
+      }
+
+      getSquare(/** @type {number} */ y, /** @type {number} */ x) {
+        const id = this.ids[[y, x]]
+        if (!id) return null
+        return document.getElementById(id)
+      }
+
+      getSquarePiece(/** @type {HTMLElement} */ square) {
+        return square.querySelector('.piece')
+      }
+
+      getPiece(/** @type {number} */ y, /** @type {number} */ x) {
+        const square = this.getSquare(y, x)
+        if (!square) return null
+        return this.getSquarePiece(square)
+      }
+
+      clearMoves() {
+        document.querySelectorAll('.board__move').forEach((el) => {
+          el.classList.add('invisible')
+        })
+        document.querySelectorAll('.board__square--attacked').forEach((el) => {
+          el.classList.remove('board__square--attacked')
+        })
+      }
+
+      showMoves(/** @type {number} */ y, /** @type {number} */ x) {
+        const chessMoves = new ChessMoves(boardView.getState())
+        const possibleMoves = new Set(chessMoves.getMoves(y, x).map((it) => it.toString()))
+        const possibleCaptures = new Set(chessMoves.getCaptures(y, x).map((it) => it.toString()))
+        document.querySelectorAll('.board__square--attacked').forEach((el) => {
+          el.classList.remove('board__square--attacked')
+        })
+        document.querySelectorAll('.board__move').forEach((el) => {
+          const square = el.parentNode
+          const pos = boardView.getSquarePosition(square).toString()
+          if (possibleMoves.has(pos)) {
+            el.classList.remove('invisible')
+          } else {
+            el.classList.add('invisible')
+          }
+          if (possibleCaptures.has(pos) && this.getSquarePiece(square)) {
+            square.classList.add('board__square--attacked')
+          }
+        })
+      }
+
+      equals(/** @type {HTMLElement} */ a, /** @type {HTMLElement} */ b) {
+        return a.getAttribute('id') === b.getAttribute('id')
+      }
+
+      getSquarePosition(/** @type {HTMLElement} */ square) {
+        return [+square.getAttribute('data-row'), +square.getAttribute('data-col')]
+      }
+
+      getPiecePosition(/** @type {HTMLElement} */ piece) {
+        return this.getSquarePosition(piece.parentNode)
+      }
     }
 
     const boardView = new BoardView()
     boardView.startup()
+  </script>
 
+  <!-- App reduce -->
+  <script>
     /**
      * @typedef {Object} State
      * @property {HTMLElement | null} previousPiece
@@ -1027,6 +1118,8 @@
      */
 
     class App {
+      static letters = Array.from('abcdefgh').reverse()
+
       constructor() {
         /** @type {State} */
         this.state = {
@@ -1048,74 +1141,99 @@
 
         switch (action.name) {
           case 'move': {
-            action.to.querySelectorAll('.piece').forEach((el) => {
-              action.to.removeChild(el)
-            })
-            action.to.appendChild(action.piece)
-            this.clearMoves()
-            return { ...state, previousPiece: null }
+            const [y1, x1] = boardView.getPiecePosition(action.piece)
+            const [y2, x2] = boardView.getSquarePosition(action.to)
+            return this.reducer(state, new MoveRelativeEvent(y1, x1, y2, x2))
           }
-          case 'piece-click': {
-            const square = action.piece.parentNode
-            const [y, x] = SquareView.getPosition(square)
-            this.showMoves(y, x)
-            return { ...state, previousPiece: action.piece }
-          }
-          case 'square-click': {
-            const piece = this.squarePiece(action.square)
-            if (!piece && state.previousPiece) {
-              return this.reducer(state, new MoveEvent(state.previousPiece, action.square))
-            }
-            if (!piece) {
-              this.clearMoves()
+          case 'move-relative': {
+            const { y1, x1, y2, x2 } = action
+            const to = boardView.getSquare(y2, x2)
+            const piece = boardView.getPiece(y1, x1)
+            if (piece && to) {
+              console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+              boardView.move(piece, to)
+              boardView.clearMoves()
               return { ...state, previousPiece: null }
             }
             return state
+          }
+          case 'piece-click': {
+            const square = action.piece.parentNode
+            if (state.previousPiece) {
+              if (boardView.equals(action.piece, state.previousPiece)) {
+                boardView.clearMoves()
+                return { ...state, previousPiece: null }
+              }
+              return this.reducer(state, new MoveEvent(state.previousPiece, square))
+            }
+            const [y, x] = boardView.getSquarePosition(square)
+            boardView.showMoves(y, x)
+            return { ...state, previousPiece: action.piece }
+          }
+          case 'square-click': {
+            if (!state.previousPiece) return state
+            const piece = boardView.getSquarePiece(action.square)
+            if (piece && boardView.equals(piece, state.previousPiece)) return state
+            return this.reducer(state, new MoveEvent(state.previousPiece, action.square))
           }
         }
         return state
       }
 
+      move(y1, x1, y2, x2) {
+        this.dispatch(new MoveRelativeEvent(y1, x1, y2, x2))
+      }
+
+      /**
+       * @param {Action} action
+       */
       dispatch(action) {
         this.state = this.reducer(this.state, action)
       }
-
-      squarePiece(/** @type {HTMLElement} */ square) {
-        return square.querySelector('.piece')
-      }
-
-      clearMoves() {
-        if (!this.state.previousPiece) return
-        document.querySelectorAll('.board__move').forEach((el) => {
-          el.classList.add('invisible')
-        })
-        document.querySelectorAll('.board__square--attacked').forEach((el) => {
-          el.classList.remove('board__square--attacked')
-        })
-      }
-
-      showMoves(y, x) {
-        const chessMoves = new ChessMoves(boardView.getState())
-        const possibleMoves = new Set(chessMoves.getMoves(y, x).map((it) => it.toString()))
-        const possibleCaptures = new Set(chessMoves.getCaptures(y, x).map((it) => it.toString()))
-        document.querySelectorAll('.board__square--attacked').forEach((el) => {
-          el.classList.remove('board__square--attacked')
-        })
-        document.querySelectorAll('.board__move').forEach((el) => {
-          const square = el.parentNode
-          const pos = SquareView.getPosition(square).toString()
-          if (possibleMoves.has(pos)) {
-            el.classList.remove('invisible')
-          } else {
-            el.classList.add('invisible')
-          }
-          if (possibleCaptures.has(pos) && this.squarePiece(square)) {
-            square.classList.add('board__square--attacked')
-          }
-        })
-      }
     }
 
-    new App().startup()
+    const app = new App()
+    app.startup()
+  </script>
+
+  <!-- Load game -->
+  <script>
+    function parseGame(content) {
+      const chessLetters = Array.from('abcdefgh').reverse()
+      const chessNumbers = Array.from('12345678')
+      const lines = content
+        .split('\n')
+        .map((it) => it.trim())
+        .filter((it) => it.length > 0)
+        .reverse()
+      if (lines.length === 0) return []
+      const result = []
+      while (lines.length > 0) {
+        const line = lines.pop()
+        if (line.startsWith('*')) continue
+        if (line.startsWith('-')) break
+        const play = line.split(':')
+        if (play.length !== 2) continue
+        result.push({
+          y1: chessLetters.indexOf(play[0][0]),
+          x1: chessNumbers.indexOf(play[0][1]),
+          y2: chessLetters.indexOf(play[1][0]),
+          x2: chessNumbers.indexOf(play[1][1]),
+        })
+      }
+      return result
+    }
+
+    fetch('./games/002.txt')
+      .then((response) => response.text())
+      .then((text) => {
+        const moves = parseGame(text)
+        moves.forEach(({ y1, x1, y2, x2 }) => {
+          app.move(y1, x1, y2, x2)
+        })
+      })
+      .catch((error) => {
+        console.error('Error loading file:', error)
+      })
   </script>
 </html>
