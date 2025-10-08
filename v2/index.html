@@ -175,8 +175,6 @@
         mask-size: cover;
         width: 72%;
         height: 72%;
-        stroke: black;
-        stroke-width: 5px;
       }
       .piece.king .figure {
         -webkit-mask: url(../v1/pieces/king.svg) no-repeat center;
@@ -237,6 +235,32 @@
       /* colors */
       .board__move {
         background-color: var(--move-color);
+      }
+    </style>
+    <!-- Previous move -->
+    <style>
+      /* TODO */
+    </style>
+    <!-- Button -->
+    <style>
+      .tools {
+        margin: 12px 0;
+      }
+
+      .button {
+        padding: 0.5em 1.5em;
+        border: none;
+        border-radius: 1.5em;
+        background: #4a6431;
+        color: #fff;
+        font-size: 1.1em;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .button:hover {
+        background: #6a593e;
       }
     </style>
   </head>
@@ -630,6 +654,12 @@
           </div>
         </div>
       </div>
+      <div class="tools">
+        <button type="button" id="tool-loadGame" class="button">Load game</button>
+        <button type="button" id="tool-reset" class="button">Reset</button>
+        <button type="button" id="tool-previous" class="button">Previous</button>
+        <button type="button" id="tool-next" class="button">Next</button>
+      </div>
     </div>
   </body>
 
@@ -884,6 +914,54 @@
     }
   </script>
 
+  <!-- Actions -->
+  <script>
+    // @ts-check
+    /** @typedef {{ y1: number, x1: number, y2: number, x2: number }} Move */
+
+    /** @typedef {{ readonly name: 'reset' }} ResetAction */
+    /** @typedef {{ readonly name: 'set-moves', moves: Array<Move> }} SetMovesAction */
+    /** @typedef {{ readonly name: 'square-click', square: HTMLElement }} ClickSquareAction */
+    /** @typedef {{ readonly name: 'piece-click', piece: HTMLElement }} ClickPieceAction */
+    /** @typedef {{ readonly name: 'move-relative', move: Move }} MoveRelativeAction */
+    /** @typedef {{ readonly name: 'move', piece: HTMLElement, to: HTMLElement }} MoveAction */
+
+    const act = {
+      /** @returns {ResetAction} */
+      reset: () => ({ name: 'reset' }),
+      /**
+       * @param {Array<Move>} moves
+       * @returns {SetMovesAction}
+       */
+      setMoves: (moves) => ({ name: 'set-moves', moves }),
+      /**
+       * @param {HTMLElement} square
+       * @returns {ClickSquareAction}
+       */
+      squareClicked: (square) => ({ name: 'square-click', square }),
+      /**
+       * @param {HTMLElement} piece
+       * @returns {ClickPieceAction}
+       */
+      pieceClicked: (piece) => ({ name: 'piece-click', piece }),
+      /**
+       * @param {Move} move
+       * @returns {MoveRelativeAction}
+       */
+      moveRelative: (move) => ({ name: 'move-relative', move }),
+      /**
+       * @param {HTMLElement} piece
+       * @param {HTMLElement} to
+       * @returns {MoveAction}
+       */
+      move: (piece, to) => ({ name: 'move', piece, to }),
+    }
+
+    /**
+     * @typedef {ResetAction | SetMovesAction | ClickSquareAction | ClickPieceAction | MoveRelativeAction | MoveAction} Action
+     */
+  </script>
+
   <!-- Board View -->
   <script>
     const DEFAULT_BOARD = document.querySelector('.board').cloneNode(true)
@@ -897,60 +975,6 @@
       k: 'knight',
       Q: 'queen',
       K: 'king',
-    }
-
-    class SquareView {
-      /**
-       * @param {HTMLElement} el
-       * @returns {[number, number]}
-       */
-      static getPosition(el) {
-        return [+el.getAttribute('data-row'), +el.getAttribute('data-col')]
-      }
-    }
-
-    class MoveEvent {
-      /** @type {'move'} */
-      name = 'move'
-
-      constructor(/** @type {HTMLElement} */ piece, /** @type {HTMLElement} */ to) {
-        this.piece = piece
-        this.to = to
-      }
-    }
-
-    class MoveRelativeEvent {
-      /** @type {'move'} */
-      name = 'move-relative'
-
-      constructor(y1, x1, y2, x2) {
-        /* @type {number} y1 */
-        this.y1 = y1
-        /* @type {number} x1 */
-        this.x1 = x1
-        /* @type {number} y2 */
-        this.y2 = y2
-        /* @type {number} x2 */
-        this.x2 = x2
-      }
-    }
-
-    class PieceClickEvent {
-      /** @type {'piece-click'} */
-      name = 'piece-click'
-
-      constructor(/** @type {HTMLElement} */ piece) {
-        this.piece = piece
-      }
-    }
-
-    class SquareClickEvent {
-      /** @type {'square-click'} */
-      name = 'square-click'
-
-      constructor(/** @type {HTMLElement} */ square) {
-        this.square = square
-      }
     }
 
     class BoardState {
@@ -975,14 +999,18 @@
       }
 
       startup() {
+        // reset the board
+        const board = document.querySelector('.board')
+        board.innerHTML = DEFAULT_BOARD.innerHTML
+
         document.querySelectorAll('.piece').forEach((el) => {
           el.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', el.getAttribute('id'))
-            this.emit(new PieceClickEvent(el))
+            this.emit(act.pieceClicked(el))
           })
 
           el.addEventListener('click', () => {
-            this.emit(new PieceClickEvent(el))
+            this.emit(act.pieceClicked(el))
           })
         })
 
@@ -994,12 +1022,12 @@
             e.preventDefault()
             const id = e.dataTransfer.getData('text/plain')
             const piece = document.getElementById(id)
-            const [x1, y1] = boardView.getSquarePosition(piece.parentNode)
+            const [y1, x1] = boardView.getSquarePosition(piece.parentNode)
             const [y2, x2] = boardView.getSquarePosition(to)
-            this.emit(new MoveRelativeEvent(x1, y1, y2, x2))
+            this.emit(act.moveRelative({ y1, x1, y2, x2 }))
           })
           to.addEventListener('click', (e) => {
-            this.emit(new SquareClickEvent(to))
+            this.emit(act.squareClicked(to))
           })
         })
 
@@ -1009,7 +1037,7 @@
         })
       }
 
-      emit(event) {
+      emit(/** @type {Action} */ event) {
         this.callbacks.forEach((callback) => callback(event))
       }
 
@@ -1107,14 +1135,15 @@
     boardView.startup()
   </script>
 
-  <!-- App reduce -->
+  <!-- App Reducer -->
   <script>
     /**
      * @typedef {Object} State
      * @property {HTMLElement | null} previousPiece
+     * @property {Array<Move>} moves
      */
     /**
-     * @typedef {MoveEvent | PieceClickEvent | SquareClickEvent} Action
+     * @typedef {MoveRelativeAction | SetMovesAction} DispatchAction
      */
 
     class App {
@@ -1124,11 +1153,81 @@
         /** @type {State} */
         this.state = {
           previousPiece: null,
+          moves: [],
         }
       }
 
       startup() {
         boardView.subscribe((event) => this.dispatch(event))
+
+        document.querySelector('#tool-reset').addEventListener('click', () => this.reset())
+
+        document.getElementById('tool-loadGame').addEventListener('click', () => {
+          const index = prompt('Game index').padStart(3, '0')
+          if (index !== '000') {
+            this.loadGame(`./games/${index}.txt`)
+              .then(() => {
+                this.reset()
+              })
+              .catch((error) => {
+                console.error('Error loading file:', error)
+              })
+          }
+        })
+
+        document.getElementById('tool-next').addEventListener('click', () => {
+          alert('TODO: NEXT')
+        })
+
+        document.getElementById('tool-previous').addEventListener('click', () => {
+          alert('TODO: PREVIOUS')
+        })
+
+        this.loadGame('./games/002.txt')
+      }
+
+      reset() {
+        boardView.startup()
+        this.dispatch(act.reset())
+      }
+
+      /**
+       * @param {string} content
+       */
+      parseGame(content) {
+        const chessLetters = Array.from('abcdefgh').reverse()
+        const chessNumbers = Array.from('12345678')
+        const lines = content
+          .split('\n')
+          .map((it) => it.trim())
+          .filter((it) => it.length > 0)
+          .reverse()
+        if (lines.length === 0) return []
+        const result = []
+        while (lines.length > 0) {
+          const line = lines.pop()
+          if (line.startsWith('*')) continue
+          if (line.startsWith('-')) break
+          const play = line.split(':')
+          if (play.length !== 2) continue
+          result.push({
+            y1: chessLetters.indexOf(play[0][0]),
+            x1: chessNumbers.indexOf(play[0][1]),
+            y2: chessLetters.indexOf(play[1][0]),
+            x2: chessNumbers.indexOf(play[1][1]),
+          })
+        }
+        return result
+      }
+
+      async loadGame(game) {
+        const response = await fetch(game)
+        const text = await response.text()
+        const moves = this.parseGame(text)
+        moves.forEach((move) => {
+          app.dispatch(act.moveRelative(move))
+        })
+        app.dispatch(act.setMoves(moves))
       }
 
       /**
@@ -1143,10 +1242,10 @@
           case 'move': {
             const [y1, x1] = boardView.getPiecePosition(action.piece)
             const [y2, x2] = boardView.getSquarePosition(action.to)
-            return this.reducer(state, new MoveRelativeEvent(y1, x1, y2, x2))
+            return this.reducer(state, act.moveRelative({ y1, x1, y2, x2 }))
           }
           case 'move-relative': {
-            const { y1, x1, y2, x2 } = action
+            const { y1, x1, y2, x2 } = action.move
             const to = boardView.getSquare(y2, x2)
             const piece = boardView.getPiece(y1, x1)
             if (piece && to) {
@@ -1154,6 +1253,8 @@
               boardView.move(piece, to)
               boardView.clearMoves()
               return { ...state, previousPiece: null }
+            } else {
+              console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
             }
             return state
           }
@@ -1164,7 +1265,7 @@
                 boardView.clearMoves()
                 return { ...state, previousPiece: null }
               }
-              return this.reducer(state, new MoveEvent(state.previousPiece, square))
+              return this.reducer(state, act.move(state.previousPiece, square))
             }
             const [y, x] = boardView.getSquarePosition(square)
             boardView.showMoves(y, x)
@@ -1174,18 +1275,14 @@
             if (!state.previousPiece) return state
             const piece = boardView.getSquarePiece(action.square)
             if (piece && boardView.equals(piece, state.previousPiece)) return state
-            return this.reducer(state, new MoveEvent(state.previousPiece, action.square))
+            return this.reducer(state, act.move(state.previousPiece, action.square))
           }
         }
         return state
       }
 
-      move(y1, x1, y2, x2) {
-        this.dispatch(new MoveRelativeEvent(y1, x1, y2, x2))
-      }
-
       /**
-       * @param {Action} action
+       * @param {DispatchAction} action
        */
       dispatch(action) {
         this.state = this.reducer(this.state, action)
@@ -1194,46 +1291,5 @@
 
     const app = new App()
     app.startup()
-  </script>
-
-  <!-- Load game -->
-  <script>
-    function parseGame(content) {
-      const chessLetters = Array.from('abcdefgh').reverse()
-      const chessNumbers = Array.from('12345678')
-      const lines = content
-        .split('\n')
-        .map((it) => it.trim())
-        .filter((it) => it.length > 0)
-        .reverse()
-      if (lines.length === 0) return []
-      const result = []
-      while (lines.length > 0) {
-        const line = lines.pop()
-        if (line.startsWith('*')) continue
-        if (line.startsWith('-')) break
-        const play = line.split(':')
-        if (play.length !== 2) continue
-        result.push({
-          y1: chessLetters.indexOf(play[0][0]),
-          x1: chessNumbers.indexOf(play[0][1]),
-          y2: chessLetters.indexOf(play[1][0]),
-          x2: chessNumbers.indexOf(play[1][1]),
-        })
-      }
-      return result
-    }
-
-    fetch('./games/002.txt')
-      .then((response) => response.text())
-      .then((text) => {
-        const moves = parseGame(text)
-        moves.forEach(({ y1, x1, y2, x2 }) => {
-          app.move(y1, x1, y2, x2)
-        })
-      })
-      .catch((error) => {
-        console.error('Error loading file:', error)
-      })
   </script>
 </html>
