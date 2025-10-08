@@ -12,6 +12,9 @@
         /* --move-color: #374a24; */
         /* --move-color: #4a6431; */
         --move-color: #6a593e;
+
+        --highlight-light: #f8f970;
+        --highlight-dark: #bbce2f;
       }
 
       body {
@@ -239,7 +242,16 @@
     </style>
     <!-- Previous move -->
     <style>
-      /* TODO */
+      .board__row:nth-child(odd) .board__previous-move:nth-child(odd),
+      .board__row:nth-child(even) .board__previous-move:nth-child(even) {
+        background: var(--highlight-light);
+        color: var(--highlight-dark);
+      }
+      .board__row:nth-child(odd) .board__previous-move:nth-child(even),
+      .board__row:nth-child(even) .board__previous-move:nth-child(odd) {
+        background: var(--highlight-dark);
+        color: var(--highlight-light);
+      }
     </style>
     <!-- Button -->
     <style>
@@ -708,12 +720,11 @@
     })
   </script>
 
-  <!-- Possible Moves -->
+  <!-- Chess Moves -->
   <script>
     /**
      * @typedef {Object} ChessBoardView
      * @property {(y: number, x: number) => string | undefined} get
-     * @property {Record<string, string>} pieces
      */
 
     class ChessMoves {
@@ -786,20 +797,20 @@
         if (!piece) return
         const { capture, canMove, result } = this._getHelpers(piece)
 
-        switch (this.view.pieces[piece[0]]) {
-          case 'pawn': {
+        switch (piece[0]) {
+          case 'p': {
             const doubleRow = piece[1] === 'b' ? 1 : 6
             const dir = piece[1] === 'b' ? 1 : -1
             capture(y + 1 * dir, x - 1)
             capture(y + 1 * dir, x + 1)
             return result
           }
-          case 'king': {
+          case 'K': {
             this.bishop.forEach(([j, i]) => capture(y + j, x + i))
             this.rook.forEach(([j, i]) => capture(y + j, x + i))
             return result
           }
-          case 'queen': {
+          case 'Q': {
             this.rook.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -816,7 +827,7 @@
             })
             return result
           }
-          case 'rook': {
+          case 'r': {
             this.rook.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -826,7 +837,7 @@
             })
             return result
           }
-          case 'bishop': {
+          case 'b': {
             this.bishop.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -836,7 +847,7 @@
             })
             return result
           }
-          case 'knight': {
+          case 'k': {
             this.knight.forEach(([j, i]) => {
               capture(y + j, x + i)
             })
@@ -914,11 +925,35 @@
     }
   </script>
 
+  <!-- Chess State -->
+  <script>
+    class ChessState {
+      constructor(/** @type {ChessBoardView} */ view) {
+        throw new Error('TODO: ChessState')
+        this.view = view
+        this.currentPlayer = 'white'
+        this.nextPlayer = 'black'
+        this.castling = {
+          white: true,
+          black: true,
+        }
+      }
+
+      swapPlayers() {
+        const player = this.currentPlayer
+        this.currentPlayer = this.nextPlayer
+        this.nextPlayer = player
+      }
+    }
+  </script>
+
   <!-- Actions -->
   <script>
     // @ts-check
     /** @typedef {{ y1: number, x1: number, y2: number, x2: number }} Move */
 
+    /** @typedef {{ readonly name: 'previous' }} PreviousAction */
+    /** @typedef {{ readonly name: 'next' }} NextAction */
     /** @typedef {{ readonly name: 'reset' }} ResetAction */
     /** @typedef {{ readonly name: 'set-moves', moves: Array<Move> }} SetMovesAction */
     /** @typedef {{ readonly name: 'square-click', square: HTMLElement }} ClickSquareAction */
@@ -927,6 +962,10 @@
     /** @typedef {{ readonly name: 'move', piece: HTMLElement, to: HTMLElement }} MoveAction */
 
     const act = {
+      /** @returns {PreviousAction} */
+      previous: () => ({ name: 'previous' }),
+      /** @returns {NextAction} */
+      next: () => ({ name: 'next' }),
       /** @returns {ResetAction} */
       reset: () => ({ name: 'reset' }),
       /**
@@ -958,7 +997,7 @@
     }
 
     /**
-     * @typedef {ResetAction | SetMovesAction | ClickSquareAction | ClickPieceAction | MoveRelativeAction | MoveAction} Action
+     * @typedef {PreviousAction | NextAction | ResetAction | SetMovesAction | ClickSquareAction | ClickPieceAction | MoveRelativeAction | MoveAction} Action
      */
   </script>
 
@@ -968,18 +1007,9 @@
     const PIECES_MAP = Object.fromEntries(
       Array.from(document.querySelectorAll('.piece'), (el) => [Array.from(el.classList).join('.'), el.cloneNode(true)]),
     )
-    const PIECES_SIMBOL = {
-      p: 'pawn',
-      r: 'rook',
-      b: 'bishop',
-      k: 'knight',
-      Q: 'queen',
-      K: 'king',
-    }
 
     class BoardState {
       constructor(/** @type {string[][]} */ board) {
-        this.pieces = PIECES_SIMBOL
         this.board = board
       }
 
@@ -1129,6 +1159,17 @@
       getPiecePosition(/** @type {HTMLElement} */ piece) {
         return this.getSquarePosition(piece.parentNode)
       }
+
+      highlightMove(/** @type {Move} */ { y1, x1, y2, x2 }) {
+        this.getSquare(y1, x1).classList.add('board__previous-move')
+        this.getSquare(y2, x2).classList.add('board__previous-move')
+      }
+
+      clearPreviousMove() {
+        document.querySelectorAll('.board__previous-move').forEach((el) => {
+          el.classList.remove('board__previous-move')
+        })
+      }
     }
 
     const boardView = new BoardView()
@@ -1141,9 +1182,7 @@
      * @typedef {Object} State
      * @property {HTMLElement | null} previousPiece
      * @property {Array<Move>} moves
-     */
-    /**
-     * @typedef {MoveRelativeAction | SetMovesAction} DispatchAction
+     * @property {number} current
      */
 
     class App {
@@ -1154,6 +1193,7 @@
         this.state = {
           previousPiece: null,
           moves: [],
+          current: 0,
         }
       }
 
@@ -1165,25 +1205,23 @@
         document.getElementById('tool-loadGame').addEventListener('click', () => {
           const index = prompt('Game index').padStart(3, '0')
           if (index !== '000') {
-            this.loadGame(`./games/${index}.txt`)
-              .then(() => {
-                this.reset()
-              })
-              .catch((error) => {
-                console.error('Error loading file:', error)
-              })
+            this.loadGame(`./games/${index}.txt`).catch((error) => {
+              console.error('Error loading file:', error)
+            })
           }
         })
 
         document.getElementById('tool-next').addEventListener('click', () => {
-          alert('TODO: NEXT')
+          this.dispatch(act.next())
         })
 
         document.getElementById('tool-previous').addEventListener('click', () => {
-          alert('TODO: PREVIOUS')
+          this.dispatch(act.previous())
         })
 
-        this.loadGame('./games/002.txt')
+        this.loadGame('./games/002.txt').then(() => {
+          this.state.moves.forEach(() => app.dispatch(act.next()))
+        })
       }
 
       reset() {
@@ -1224,10 +1262,21 @@
         const response = await fetch(game)
         const text = await response.text()
         const moves = this.parseGame(text)
-        moves.forEach((move) => {
-          app.dispatch(act.moveRelative(move))
-        })
         app.dispatch(act.setMoves(moves))
+      }
+
+      applyMove(state, move) {
+        const { y1, x1, y2, x2 } = move
+        const to = boardView.getSquare(y2, x2)
+        const piece = boardView.getPiece(y1, x1)
+        if (piece && to) {
+          console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+          boardView.move(piece, to)
+          return true
+        } else {
+          console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+        }
+        return false
       }
 
       /**
@@ -1239,22 +1288,42 @@
         if (false) console.count(`reducer: ${action.name}`)
 
         switch (action.name) {
+          case 'set-moves': {
+            return { ...state, moves: action.moves }
+          }
+          case 'previous': {
+            if (this.state.current > 0) {
+              const current = this.state.current - 1
+              boardView.startup()
+              for (let index = 0; index < current; index++) {
+                this.applyMove(state, this.state.moves[index])
+              }
+              boardView.highlightMove(this.state.moves[current])
+              return { ...state, current }
+            }
+            return state
+          }
+          case 'next': {
+            if (this.state.current < this.state.moves.length) {
+              const move = this.state.moves[this.state.current]
+              return this.reducer({ ...state, current: this.state.current + 1 }, act.moveRelative(move))
+            }
+            return state
+          }
+          case 'reset': {
+            return { ...state, current: 0, previousPiece: null }
+          }
           case 'move': {
             const [y1, x1] = boardView.getPiecePosition(action.piece)
             const [y2, x2] = boardView.getSquarePosition(action.to)
             return this.reducer(state, act.moveRelative({ y1, x1, y2, x2 }))
           }
           case 'move-relative': {
-            const { y1, x1, y2, x2 } = action.move
-            const to = boardView.getSquare(y2, x2)
-            const piece = boardView.getPiece(y1, x1)
-            if (piece && to) {
-              console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
-              boardView.move(piece, to)
+            if (this.applyMove(state, action.move)) {
+              boardView.clearPreviousMove()
               boardView.clearMoves()
+              boardView.highlightMove(action.move)
               return { ...state, previousPiece: null }
-            } else {
-              console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
             }
             return state
           }
@@ -1281,9 +1350,6 @@
         return state
       }
 
-      /**
-       * @param {DispatchAction} action
-       */
       dispatch(action) {
         this.state = this.reducer(this.state, action)
       }
