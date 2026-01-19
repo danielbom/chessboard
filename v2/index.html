@@ -270,10 +270,10 @@
         color: var(--highlight-light);
       }
     </style>
-    <!-- Button -->
+    <!-- Tools + Button -->
     <style>
       .tools {
-        margin: 12px 0;
+        padding: 12px 0;
       }
 
       .button {
@@ -290,6 +290,16 @@
       }
       .button:hover {
         background: #6a593e;
+      }
+    </style>
+    <!-- Stats  -->
+    <style>
+      .stats {
+        color: white;
+        padding: 1rem 0 0.5rem 1rem;
+        display: flex;
+        gap: 3rem;
+        font-size: 1.35rem;
       }
     </style>
   </head>
@@ -683,6 +693,24 @@
           </div>
         </div>
       </div>
+      <div class="stats">
+        <div>
+          White Pieces:
+          <span id="stats-pieces-white">0</span>
+        </div>
+        <div>
+          Black Pieces:
+          <span id="stats-pieces-black">0</span>
+        </div>
+        <div>
+          White Points:
+          <span id="stats-points-white">0</span>
+        </div>
+        <div>
+          Black Points:
+          <span id="stats-points-black">0</span>
+        </div>
+      </div>
       <div class="tools">
         <button type="button" id="tool-loadGame" class="button">Load game</button>
         <button type="button" id="tool-reset" class="button">Reset</button>
@@ -710,6 +738,7 @@
     const PIECES_COLORS = ['black', 'white']
     const PIECES_NAMES = ['rook', 'knight', 'bishop', 'queen', 'king', 'pawn']
     const PIECES_SIMBOL = { r: 'rook', k: 'knight', b: 'bishop', Q: 'queen', K: 'king', p: 'pawn' }
+    const PIECES_POINTS = { r: 5, k: 3, b: 4, Q: 10, K: 0, p: 1 }
     document.querySelectorAll('.board__square').forEach((el, index) => {
       el.setAttribute('data-row', `${Math.floor(index / 8)}`)
       el.setAttribute('data-col', `${index % 8}`)
@@ -967,7 +996,7 @@
     }
   </script>
 
-  <!-- Chess State -->
+  <!-- TODO: Chess State -->
   <script>
     class ChessState {
       constructor(/** @type {ChessBoardView} */ view) {
@@ -1062,6 +1091,29 @@
         if (0 <= y && y < this.board.length && 0 <= x && x < this.board.length) {
           return this.board[y][x]
         }
+      }
+
+      getStats() {
+        const result = {
+          white: {
+            pieces: 0,
+            points: 0,
+          },
+          black: {
+            pieces: 0,
+            points: 0,
+          },
+        }
+        this.board.forEach((row) => {
+          row.forEach((piece) => {
+            let color = piece[1] === 'b' ? 'black' : piece[1] === 'w' ? 'white' : ''
+            if (color) {
+              result[color].pieces++
+              result[color].points += PIECES_POINTS[piece[0]]
+            }
+          })
+        })
+        return result
       }
     }
 
@@ -1286,6 +1338,8 @@
           this.swapDirections()
         }
 
+        this.updateStats()
+
         this.loadGame('./games/002.txt').then(() => {
           this.state.moves.forEach(() => app.dispatch(act.next()))
         })
@@ -1302,6 +1356,15 @@
       reset() {
         boardView.startup()
         this.dispatch(act.reset())
+        this.updateStats()
+      }
+
+      updateStats() {
+        const stats = boardView.getState().getStats()
+        document.getElementById('stats-pieces-white').innerText = stats.white.pieces
+        document.getElementById('stats-pieces-black').innerText = stats.black.pieces
+        document.getElementById('stats-points-white').innerText = stats.white.points
+        document.getElementById('stats-points-black').innerText = stats.black.points
       }
 
       /**
@@ -1347,6 +1410,7 @@
         if (piece && to) {
           console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
           boardView.move(piece, to)
+          this.updateStats()
           return true
         } else {
           console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
