@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -109,12 +109,15 @@
         display: inline-block;
         padding: var(--thickness);
         border-radius: var(--radius);
-        background: radial-gradient(circle at top left, var(--wood-light), var(--wood-c1)),
+        background:
+          radial-gradient(circle at top left, var(--wood-light), var(--wood-c1)),
           linear-gradient(135deg, var(--wood-c2) 0%, var(--wood-dark) 100%);
         background-blend-mode: multiply;
 
         /* subtle highlight, inner shadow, outer shadow */
-        box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        box-shadow:
+          inset 0 2px 5px rgba(255, 255, 255, 0.3),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.3),
           0 6px 16px rgba(0, 0, 0, 0.4);
       }
       .board-border .board {
@@ -691,6 +694,7 @@
     // DATA SET
     const PIECES_COLORS = ['black', 'white']
     const PIECES_NAMES = ['rook', 'knight', 'bishop', 'queen', 'king', 'pawn']
+    const PIECES_SIMBOL = { r: 'rook', k: 'knight', b: 'bishop', Q: 'queen', K: 'king', p: 'pawn' }
     document.querySelectorAll('.board__square').forEach((el, index) => {
       el.setAttribute('data-row', `${Math.floor(index / 8)}`)
       el.setAttribute('data-col', `${index % 8}`)
@@ -867,20 +871,20 @@
         if (!piece) return
         const { move, result } = this._getHelpers(piece)
 
-        switch (this.view.pieces[piece[0]]) {
-          case 'pawn': {
+        switch (piece[0]) {
+          case 'p': {
             const doubleRow = piece[1] === 'b' ? 1 : 6
             const dir = piece[1] === 'b' ? 1 : -1
             if (!move(y + 1 * dir, x)) return result
             if (doubleRow === y && !move(y + 2 * dir, x)) return result
             return result
           }
-          case 'king': {
+          case 'K': {
             this.bishop.forEach(([j, i]) => move(y + j, x + i))
             this.rook.forEach(([j, i]) => move(y + j, x + i))
             return result
           }
-          case 'queen': {
+          case 'Q': {
             this.rook.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -895,7 +899,7 @@
             })
             return result
           }
-          case 'rook': {
+          case 'r': {
             this.rook.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -904,7 +908,7 @@
             })
             return result
           }
-          case 'bishop': {
+          case 'b': {
             this.bishop.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
@@ -913,7 +917,7 @@
             })
             return result
           }
-          case 'knight': {
+          case 'k': {
             this.knight.forEach(([j, i]) => {
               move(y + j, x + i)
             })
