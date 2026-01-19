@@ -34,6 +34,15 @@
       /* vars */
       .board {
         --colsize: 90px;
+        display: flex;
+      }
+
+      .board-white-black {
+        flex-direction: column;
+      }
+
+      .board-black-white {
+        flex-direction: column-reverse;
       }
 
       /* position */
@@ -287,7 +296,7 @@
   <body class="nodebug">
     <div class="theme-green">
       <div class="board-border">
-        <div class="board">
+        <div class="board board-white-black">
           <div class="board__row">
             <div class="board__square">
               <span class="board__attack-defense">0/0</span>
@@ -679,6 +688,7 @@
         <button type="button" id="tool-reset" class="button">Reset</button>
         <button type="button" id="tool-previous" class="button">Previous</button>
         <button type="button" id="tool-next" class="button">Next</button>
+        <button type="button" id="tool-swap-view" class="button">Swap View</button>
       </div>
     </div>
   </body>
@@ -987,6 +997,7 @@
     /** @typedef {{ readonly name: 'previous' }} PreviousAction */
     /** @typedef {{ readonly name: 'next' }} NextAction */
     /** @typedef {{ readonly name: 'reset' }} ResetAction */
+    /** @typedef {{ readonly name: 'swap-view' }} SwapViewAction */
     /** @typedef {{ readonly name: 'set-moves', moves: Array<Move> }} SetMovesAction */
     /** @typedef {{ readonly name: 'square-click', square: HTMLElement }} ClickSquareAction */
     /** @typedef {{ readonly name: 'piece-click', piece: HTMLElement }} ClickPieceAction */
@@ -1000,6 +1011,8 @@
       next: () => ({ name: 'next' }),
       /** @returns {ResetAction} */
       reset: () => ({ name: 'reset' }),
+      /** @returns {SwapViewAction} */
+      swapDictions: () => ({ name: 'swap-view' }),
       /**
        * @param {Array<Move>} moves
        * @returns {SetMovesAction}
@@ -1226,7 +1239,10 @@
      * @property {HTMLElement | null} previousPiece
      * @property {Array<Move>} moves
      * @property {number} current
+     * @property {string} currentDirection
+     * @property {string} nextDirection
      */
+    const SWAP_VIEW = 'swap-view'
 
     class App {
       static letters = Array.from('abcdefgh').reverse()
@@ -1237,6 +1253,8 @@
           previousPiece: null,
           moves: [],
           current: 0,
+          currentDirection: 'board-white-black',
+          nextDirection: 'board-black-white',
         }
       }
 
@@ -1244,6 +1262,8 @@
         boardView.subscribe((event) => this.dispatch(event))
 
         document.querySelector('#tool-reset').addEventListener('click', () => this.reset())
+
+        document.getElementById('tool-swap-view').addEventListener('click', () => this.swapDirections())
 
         document.getElementById('tool-loadGame').addEventListener('click', () => {
           const index = prompt('Game index').padStart(3, '0')
@@ -1262,9 +1282,21 @@
           this.dispatch(act.previous())
         })
 
+        if (localStorage.getItem(SWAP_VIEW) === this.state.nextDirection) {
+          this.swapDirections()
+        }
+
         this.loadGame('./games/002.txt').then(() => {
           this.state.moves.forEach(() => app.dispatch(act.next()))
         })
+      }
+
+      swapDirections() {
+        const board = document.querySelector('.board')
+        board.classList.remove(this.state.currentDirection)
+        board.classList.add(this.state.nextDirection)
+        localStorage.setItem(SWAP_VIEW, this.state.nextDirection)
+        this.dispatch(act.swapDictions())
       }
 
       reset() {
@@ -1331,6 +1363,10 @@
         if (false) console.count(`reducer: ${action.name}`)
 
         switch (action.name) {
+          case 'swap-view': {
+            const direction = state.currentDirection
+            return { ...state, currentDirection: state.nextDirection, nextDirection: state.currentDirection }
+          }
           case 'set-moves': {
             return { ...state, moves: action.moves }
           }
