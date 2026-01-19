@@ -12,6 +12,7 @@
         /* --move-color: #374a24; */
         /* --move-color: #4a6431; */
         --move-color: #6a593e;
+        --protect-color: #536a3e;
 
         --highlight-light: #f8f970;
         --highlight-dark: #bbce2f;
@@ -75,6 +76,7 @@
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         font-size: large;
         user-select: none;
+        text-transform: uppercase;
       }
       .board__attack-defense {
         font-size: small;
@@ -83,6 +85,9 @@
       /* colors */
       .board__square--attacked {
         background: var(--move-color) !important;
+      }
+      .board__square--protected {
+        background: var(--protect-color) !important;
       }
 
       .board__row:nth-child(odd) .board__square:nth-child(odd),
@@ -772,21 +777,24 @@
       getPiece(y, x) {
         const piece = this.view.get(y, x)
         if (!piece) return
-        if (piece === '  ') return ''
+        if (piece === '  ') return
         return piece
       }
 
       _getHelpers(piece) {
         /** @type {[number, number][]} */
         const result = []
+        const protectable = (y, x) => this.getPiece(y, x)?.endsWith(piece[1]) === true
         const capturable = (y, x) => this.getPiece(y, x)?.endsWith(piece[1]) === false
-        const canMove = (y, x) => this.getPiece(y, x) === ''
+        const canMove = (y, x) => this.view.get(y, x) === '  '
         const move = (y, x) => canMove(y, x) && (result.push([y, x]), true)
         const capture = (y, x) => capturable(y, x) && (result.push([y, x]), true)
+        const protect = (y, x) => protectable(y, x) && (result.push([y, x]), true)
         return {
           canMove,
           move,
           capture,
+          protect,
           result,
         }
       }
@@ -796,22 +804,24 @@
        * @param {number} x
        * @returns {[number, number][]}
        */
-      getCaptures(y, x) {
+      _getOccupations(y, x, kind) {
         const piece = this.getPiece(y, x)
         if (!piece) return
-        const { capture, canMove, result } = this._getHelpers(piece)
+        const { protect, capture, canMove, result } = this._getHelpers(piece)
+        const move = { protect, capture }[kind]
+        if (!move) throw new Error(kind)
 
         switch (piece[0]) {
           case 'p': {
             const doubleRow = piece[1] === 'b' ? 1 : 6
             const dir = piece[1] === 'b' ? 1 : -1
-            capture(y + 1 * dir, x - 1)
-            capture(y + 1 * dir, x + 1)
+            move(y + 1 * dir, x - 1)
+            move(y + 1 * dir, x + 1)
             return result
           }
           case 'K': {
-            this.bishop.forEach(([j, i]) => capture(y + j, x + i))
-            this.rook.forEach(([j, i]) => capture(y + j, x + i))
+            this.bishop.forEach(([j, i]) => move(y + j, x + i))
+            this.rook.forEach(([j, i]) => move(y + j, x + i))
             return result
           }
           case 'Q': {
@@ -820,14 +830,14 @@
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
               }
-              capture(y + j * k, x + i * k)
+              move(y + j * k, x + i * k)
             })
             this.bishop.forEach(([j, i]) => {
               let k = 1
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
               }
-              capture(y + j * k, x + i * k)
+              move(y + j * k, x + i * k)
             })
             return result
           }
@@ -837,7 +847,7 @@
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
               }
-              capture(y + j * k, x + i * k)
+              move(y + j * k, x + i * k)
             })
             return result
           }
@@ -847,18 +857,36 @@
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
               }
-              capture(y + j * k, x + i * k)
+              move(y + j * k, x + i * k)
             })
             return result
           }
           case 'k': {
             this.knight.forEach(([j, i]) => {
-              capture(y + j, x + i)
+              move(y + j, x + i)
             })
             return result
           }
         }
         return result
+      }
+
+      /**
+       * @param {number} y
+       * @param {number} x
+       * @returns {[number, number][]}
+       */
+      getCaptures(y, x) {
+        return this._getOccupations(y, x, 'capture')
+      }
+
+      /**
+       * @param {number} y
+       * @param {number} x
+       * @returns {[number, number][]}
+       */
+      getProtects(y, x) {
+        return this._getOccupations(y, x, 'protect')
       }
 
       /**
@@ -1129,14 +1157,21 @@
         document.querySelectorAll('.board__square--attacked').forEach((el) => {
           el.classList.remove('board__square--attacked')
         })
+        document.querySelectorAll('.board__square--protected').forEach((el) => {
+          el.classList.remove('board__square--protected')
+        })
       }
 
       showMoves(/** @type {number} */ y, /** @type {number} */ x) {
         const chessMoves = new ChessMoves(boardView.getState())
         const possibleMoves = new Set(chessMoves.getMoves(y, x).map((it) => it.toString()))
         const possibleCaptures = new Set(chessMoves.getCaptures(y, x).map((it) => it.toString()))
+        const possibleProtects = new Set(chessMoves.getProtects(y, x).map((it) => it.toString()))
         document.querySelectorAll('.board__square--attacked').forEach((el) => {
           el.classList.remove('board__square--attacked')
+        })
+        document.querySelectorAll('.board__square--protected').forEach((el) => {
+          el.classList.remove('board__square--protected')
         })
         document.querySelectorAll('.board__move').forEach((el) => {
           const square = el.parentNode
@@ -1149,7 +1184,11 @@
           if (possibleCaptures.has(pos) && this.getSquarePiece(square)) {
             square.classList.add('board__square--attacked')
           }
+          if (possibleProtects.has(pos) && this.getSquarePiece(square)) {
+            square.classList.add('board__square--protected')
+          }
         })
+        return possibleMoves.size > 0 || possibleCaptures.size > 0 || possibleProtects.size > 0
       }
 
       equals(/** @type {HTMLElement} */ a, /** @type {HTMLElement} */ b) {
@@ -1341,8 +1380,11 @@
               return this.reducer(state, act.move(state.previousPiece, square))
             }
             const [y, x] = boardView.getSquarePosition(square)
-            boardView.showMoves(y, x)
-            return { ...state, previousPiece: action.piece }
+            if (boardView.showMoves(y, x)) {
+              return { ...state, previousPiece: action.piece }
+            } else {
+              return state
+            }
           }
           case 'square-click': {
             if (!state.previousPiece) return state
