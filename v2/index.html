@@ -274,6 +274,9 @@
     <style>
       .tools {
         padding: 12px 0;
+        gap: 10px;
+        display: flex;
+        flex-wrap: wrap;
       }
 
       .button {
@@ -717,6 +720,7 @@
         <button type="button" id="tool-previous" class="button">Previous</button>
         <button type="button" id="tool-next" class="button">Next</button>
         <button type="button" id="tool-swap-view" class="button">Swap View</button>
+        <button type="button" id="tool-put-piece" class="button">Put Piece</button>
       </div>
     </div>
   </body>
@@ -1021,7 +1025,9 @@
   <!-- Actions -->
   <script>
     // @ts-check
-    /** @typedef {{ y1: number, x1: number, y2: number, x2: number }} Move */
+    /** @typedef {{ kind: 'move', y1: number, x1: number, y2: number, x2: number }} MovePiece */
+    /** @typedef {{ kind: 'put', pieceName: string, pieceColor: string, y: number, x: number }} PutPiece */
+    /** @typedef {MovePiece | PutPiece} Move */
 
     /** @typedef {{ readonly name: 'previous' }} PreviousAction */
     /** @typedef {{ readonly name: 'next' }} NextAction */
@@ -1032,6 +1038,7 @@
     /** @typedef {{ readonly name: 'piece-click', piece: HTMLElement }} ClickPieceAction */
     /** @typedef {{ readonly name: 'move-relative', move: Move }} MoveRelativeAction */
     /** @typedef {{ readonly name: 'move', piece: HTMLElement, to: HTMLElement }} MoveAction */
+    /** @typedef {{ readonly name: 'put-piece', pieceName: string, pieceColor: string, x: number, y: string }} PutPieceAction */
 
     const act = {
       /** @returns {PreviousAction} */
@@ -1068,6 +1075,14 @@
        * @returns {MoveAction}
        */
       move: (piece, to) => ({ name: 'move', piece, to }),
+      /**
+       * @param {string} pieceName
+       * @param {string} pieceColor
+       * @param {number} y
+       * @param {number} x
+       * @returns {PutPieceAction}
+       */
+      putPiece: (pieceName, pieceColor, y, x) => ({ name: 'put-piece', pieceName, pieceColor, y, x }),
     }
 
     /**
@@ -1123,6 +1138,18 @@
         this.callbacks = []
         /** @type {Record<string, HTMLElement | undefined>} */
         this.ids = {}
+        this.putPieceId = 1
+      }
+
+      _addEventToPiece(el) {
+        el.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', el.getAttribute('id'))
+          this.emit(act.pieceClicked(el))
+        })
+
+        el.addEventListener('click', () => {
+          this.emit(act.pieceClicked(el))
+        })
       }
 
       startup() {
@@ -1130,16 +1157,7 @@
         const board = document.querySelector('.board')
         board.innerHTML = DEFAULT_BOARD.innerHTML
 
-        document.querySelectorAll('.piece').forEach((el) => {
-          el.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', el.getAttribute('id'))
-            this.emit(act.pieceClicked(el))
-          })
-
-          el.addEventListener('click', () => {
-            this.emit(act.pieceClicked(el))
-          })
-        })
+        document.querySelectorAll('.piece').forEach((el) => this._addEventToPiece(el))
 
         document.querySelectorAll('.board__square').forEach((to) => {
           to.addEventListener('dragover', (e) => {
@@ -1185,11 +1203,18 @@
         return new BoardState(board)
       }
 
-      WIP__putPiece(/** @type {string} */ pieceName, /** @type {HTMLElement} */ squareElement) {
-        // Speculative function not fully implemented yet to promote pawn
-        const pieceElement = PIECES_MAP[pieceName]
+      /**
+       * @param {string} pieceName
+       * @param {string} pieceColor
+       * @param {HTMLElement} squareElement
+       */
+      putPiece(pieceName, pieceColor, squareElement) {
+        const pieceId = `piece.${pieceColor}.${pieceName}`
+        const pieceElement = PIECES_MAP[pieceId]?.cloneNode(true)
         if (!pieceElement) throw new Error()
-        squareElement.appendChild(pieceElement.cloneNode(true))
+        this._addEventToPiece(pieceElement)
+        pieceElement.setAttribute('id', `piece-put-#${++this.putPieceId}`)
+        this.move(pieceElement, squareElement)
       }
 
       move(/** @type {HTMLElement} */ piece, /** @type {HTMLElement} */ to) {
@@ -1268,9 +1293,12 @@
         return this.getSquarePosition(piece.parentNode)
       }
 
-      highlightMove(/** @type {Move} */ { y1, x1, y2, x2 }) {
-        this.getSquare(y1, x1).classList.add('board__previous-move')
-        this.getSquare(y2, x2).classList.add('board__previous-move')
+      highlightMove(/** @type {Move} */ move) {
+        if (move.kind === 'move') {
+          const { y1, x1, y2, x2 } = move
+          this.getSquare(y1, x1).classList.add('board__previous-move')
+          this.getSquare(y2, x2).classList.add('board__previous-move')
+        }
       }
 
       clearPreviousMove() {
@@ -1313,9 +1341,11 @@
       startup() {
         boardView.subscribe((event) => this.dispatch(event))
 
-        document.querySelector('#tool-reset').addEventListener('click', () => this.reset())
+        document.getElementById('tool-reset').addEventListener('click', () => this.reset())
 
         document.getElementById('tool-swap-view').addEventListener('click', () => this.swapDirections())
+
+        document.getElementById('tool-put-piece').addEventListener('click', () => this.putPiece())
 
         document.getElementById('tool-loadGame').addEventListener('click', () => {
           const index = prompt('Game index').padStart(3, '0')
@@ -1340,8 +1370,9 @@
 
         this.updateStats()
 
-        this.loadGame('./games/002.txt').then(() => {
+        this.loadGame('./games/003.txt').then(() => {
           this.state.moves.forEach(() => app.dispatch(act.next()))
+          console.error('complete')
         })
       }
 
@@ -1367,10 +1398,32 @@
         document.getElementById('stats-points-black').innerText = stats.black.points
       }
 
+      putPiece() {
+        const chessLetters = Array.from('abcdefgh')
+        const chessNumbers = Array.from('12345678').reverse()
+        const square = window.prompt('Enter the square')
+        const x = chessLetters.indexOf(square[0])
+        const y = chessNumbers.indexOf(square[1])
+        if (y === -1 || x === -1) return window.alert(`Square ${square} not found`)
+
+        const color = window.prompt('Enter the color')
+        const colorLower = color?.toLowerCase()
+        const pieceColor = colorLower[0] === 'b' ? 'black' : colorLower[0] === 'w' ? 'white' : undefined
+        if (!pieceColor) return window.alert(`Invalid color ${color}`)
+
+        const name = window.prompt('Enter the piece name')
+        const nameLower = name?.toLowerCase()
+        const pieceName = name ? PIECES_SIMBOL[name[0]] || PIECES_NAMES.find((name) => nameLower === name) : undefined
+        if (!pieceColor) return window.alert(`Invalid name ${name}`)
+
+        this.dispatch(act.putPiece(pieceName, pieceColor, y, x))
+      }
+
       /**
        * @param {string} content
        */
       parseGame(content) {
+        // BUG: chessLetters & chessNumbers are inverted
         const chessLetters = Array.from('abcdefgh').reverse()
         const chessNumbers = Array.from('12345678')
         const lines = content
@@ -1384,14 +1437,26 @@
           const line = lines.pop()
           if (line.startsWith('*')) continue
           if (line.startsWith('-')) break
-          const play = line.split(':')
-          if (play.length !== 2) continue
-          result.push({
-            y1: chessLetters.indexOf(play[0][0]),
-            x1: chessNumbers.indexOf(play[0][1]),
-            y2: chessLetters.indexOf(play[1][0]),
-            x2: chessNumbers.indexOf(play[1][1]),
-          })
+          if (line.startsWith('put:')) {
+            const [_, pieceName, pieceColor, position] = line.split(/\s+/)
+            result.push({
+              kind: 'put',
+              pieceName,
+              pieceColor,
+              y: chessLetters.indexOf(position[0]),
+              x: chessNumbers.indexOf(position[1]),
+            })
+          } else {
+            const play = line.split(':')
+            if (play.length !== 2) continue
+            result.push({
+              kind: 'move',
+              y1: chessLetters.indexOf(play[0][0]),
+              x1: chessNumbers.indexOf(play[0][1]),
+              y2: chessLetters.indexOf(play[1][0]),
+              x2: chessNumbers.indexOf(play[1][1]),
+            })
+          }
         }
         return result
       }
@@ -1403,19 +1468,35 @@
         app.dispatch(act.setMoves(moves))
       }
 
-      applyMove(state, move) {
-        const { y1, x1, y2, x2 } = move
-        const to = boardView.getSquare(y2, x2)
-        const piece = boardView.getPiece(y1, x1)
-        if (piece && to) {
-          console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
-          boardView.move(piece, to)
-          this.updateStats()
-          return true
-        } else {
-          console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+      applyMove(move) {
+        switch (move.kind) {
+          case 'move': {
+            const { y1, x1, y2, x2 } = move
+            const to = boardView.getSquare(y2, x2)
+            const piece = boardView.getPiece(y1, x1)
+            if (piece && to) {
+              console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+              boardView.move(piece, to)
+              this.updateStats()
+              return true
+            } else {
+              console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+            }
+            return false
+          }
+          case 'put': {
+            const { pieceName, pieceColor, y, x } = move
+            const squareElement = boardView.getSquare(y, x)
+            if (squareElement && PIECES_NAMES.includes(pieceName) && PIECES_COLORS.includes(pieceColor)) {
+              console.log(`put: ${pieceName} ${pieceColor} ${App.letters[y]}${x + 1}`)
+              boardView.putPiece(pieceName, pieceColor, squareElement)
+              return true
+            } else {
+              console.log(`INVALID PUT PIECE: ${pieceName} ${pieceColor} ${App.letters[y]}${x + 1}`)
+              return false
+            }
+          }
         }
-        return false
       }
 
       /**
@@ -1439,7 +1520,7 @@
               const current = this.state.current - 1
               boardView.startup()
               for (let index = 0; index < current; index++) {
-                this.applyMove(state, this.state.moves[index])
+                this.applyMove(this.state.moves[index])
               }
               boardView.highlightMove(this.state.moves[current])
               return { ...state, current }
@@ -1459,10 +1540,10 @@
           case 'move': {
             const [y1, x1] = boardView.getPiecePosition(action.piece)
             const [y2, x2] = boardView.getSquarePosition(action.to)
-            return this.reducer(state, act.moveRelative({ y1, x1, y2, x2 }))
+            return this.reducer(state, act.moveRelative({ kind: 'move', y1, x1, y2, x2 }))
           }
           case 'move-relative': {
-            if (this.applyMove(state, action.move)) {
+            if (this.applyMove(action.move)) {
               boardView.clearPreviousMove()
               boardView.clearMoves()
               boardView.highlightMove(action.move)
@@ -1491,6 +1572,9 @@
             const piece = boardView.getSquarePiece(action.square)
             if (piece && boardView.equals(piece, state.previousPiece)) return state
             return this.reducer(state, act.move(state.previousPiece, action.square))
+          }
+          case 'put-piece': {
+            return this.reducer(state, act.moveRelative({ kind: 'put-piece', ...action }))
           }
         }
         return state
