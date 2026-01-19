@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess</title>
+    <style>
+      .row {
+        display: flex;
+      }
+
+      .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-width: 100px;
+        min-height: 100px;
+        width: 100px;
+        height: 100px;
+
+        font-size: 80px;
+        text-align: center;
+        user-select: none;
+      }
+
+      .cell.white {
+        background-color: #eeeed2;
+      }
+      .cell.black {
+        background-color: #779656;
+      }
+
+      .piece-black {
+        color: black;
+        text-shadow: 0 0 5px white;
+      }
+      .piece-white {
+        color: white;
+        text-shadow: 0 0 5px black;
+      }
+
+      .cell.white.highlight {
+        background-color: #f7f682;
+      }
+      .cell.black.highlight {
+        background-color: #baca45;
+      }
+
+      .cell.white.error {
+        background-color: #e3213c;
+      }
+      .cell.black.error {
+        background-color: #dc1e38;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>
