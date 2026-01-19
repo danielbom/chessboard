@@ -715,7 +715,7 @@
         </div>
       </div>
       <div class="tools">
-        <button type="button" id="tool-loadGame" class="button">Load game</button>
+        <button type="button" id="tool-load-game" class="button">Load game</button>
         <button type="button" id="tool-reset" class="button">Reset</button>
         <button type="button" id="tool-previous" class="button">Previous</button>
         <button type="button" id="tool-next" class="button">Next</button>
@@ -1347,12 +1347,12 @@
 
         document.getElementById('tool-put-piece').addEventListener('click', () => this.putPiece())
 
-        document.getElementById('tool-loadGame').addEventListener('click', () => {
+        document.getElementById('tool-load-game').addEventListener('click', () => {
           const index = prompt('Game index').padStart(3, '0')
           if (index !== '000') {
-            this.loadGame(`./games/${index}.txt`).catch((error) => {
-              console.error('Error loading file:', error)
-            })
+            this.loadGame(`./games/${index}.txt`)
+              .then(() => this.reset())
+              .catch((error) => console.error('Error loading file:', error))
           }
         })
 
