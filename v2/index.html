@@ -16,6 +16,8 @@
 
         --highlight-light: #f8f970;
         --highlight-dark: #bbce2f;
+      
+        --colsize: 90px;
       }
 
       body {
@@ -33,7 +35,6 @@
     <style>
       /* vars */
       .board {
-        --colsize: 90px;
         display: flex;
       }
 
@@ -305,422 +306,448 @@
         font-size: 1.35rem;
       }
     </style>
+    <!-- View  -->
+    <style>
+      .view {
+        display: flex;
+      }
+      .view-right {
+        color: white;
+        max-height: calc(var(--colsize) * 8 + 20px);
+        overflow-y: scroll;
+        padding-left: 2rem;
+        padding-right: 1rem;
+        font-size: 1.2rem;
+        min-width: fit-content;
+      }
+      .view-moves {
+        width: 100%;
+      }
+    </style>
   </head>
   <body class="nodebug">
     <div class="theme-green">
-      <div class="board-border">
-        <div class="board board-white-black">
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">8</span>
-              <div class="board__move"></div>
-              <div class="piece black rook">
-                <div class="figure"></div>
+      <div class="view">
+        <div class="view-left">
+          <div class="board-border">
+            <div class="board board-white-black">
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">8</span>
+                  <div class="board__move"></div>
+                  <div class="piece black rook">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black knight">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black bishop">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black queen">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black king">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black bishop">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black knight">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black rook">
+                    <div class="figure"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black knight">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">7</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece black pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black bishop">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">6</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black queen">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">5</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black king">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">4</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black bishop">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">3</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black knight">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">2</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <div class="board__move"></div>
+                  <div class="piece white pawn">
+                    <div class="figure"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black rook">
-                <div class="figure"></div>
+              <div class="board__row">
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__number">1</span>
+                  <span class="board__letter">a</span>
+                  <div class="board__move"></div>
+                  <div class="piece white rook">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">b</span>
+                  <div class="board__move"></div>
+                  <div class="piece white knight">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">c</span>
+                  <div class="board__move"></div>
+                  <div class="piece white bishop">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">d</span>
+                  <div class="board__move"></div>
+                  <div class="piece white queen">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">e</span>
+                  <div class="board__move"></div>
+                  <div class="piece white king">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">f</span>
+                  <div class="board__move"></div>
+                  <div class="piece white bishop">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">g</span>
+                  <div class="board__move"></div>
+                  <div class="piece white knight">
+                    <div class="figure"></div>
+                  </div>
+                </div>
+                <div class="board__square">
+                  <span class="board__attack-defense">0/0</span>
+                  <span class="board__letter">h</span>
+                  <div class="board__move"></div>
+                  <div class="piece white rook">
+                    <div class="figure"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">7</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
+          <div class="stats">
+            <div>
+              White Pieces:
+              <span id="stats-pieces-white">0</span>
             </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
+            <div>
+              Black Pieces:
+              <span id="stats-pieces-black">0</span>
             </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
+            <div>
+              White Points:
+              <span id="stats-points-white">0</span>
             </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece black pawn">
-                <div class="figure"></div>
-              </div>
+            <div>
+              Black Points:
+              <span id="stats-points-black">0</span>
             </div>
           </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">6</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-          </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">5</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-          </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">4</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-          </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">3</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-            </div>
-          </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">2</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <div class="board__move"></div>
-              <div class="piece white pawn">
-                <div class="figure"></div>
-              </div>
-            </div>
-          </div>
-          <div class="board__row">
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__number">1</span>
-              <span class="board__letter">a</span>
-              <div class="board__move"></div>
-              <div class="piece white rook">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">b</span>
-              <div class="board__move"></div>
-              <div class="piece white knight">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">c</span>
-              <div class="board__move"></div>
-              <div class="piece white bishop">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">d</span>
-              <div class="board__move"></div>
-              <div class="piece white queen">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">e</span>
-              <div class="board__move"></div>
-              <div class="piece white king">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">f</span>
-              <div class="board__move"></div>
-              <div class="piece white bishop">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">g</span>
-              <div class="board__move"></div>
-              <div class="piece white knight">
-                <div class="figure"></div>
-              </div>
-            </div>
-            <div class="board__square">
-              <span class="board__attack-defense">0/0</span>
-              <span class="board__letter">h</span>
-              <div class="board__move"></div>
-              <div class="piece white rook">
-                <div class="figure"></div>
-              </div>
-            </div>
+          <div class="tools">
+            <button type="button" id="tool-load-game" class="button">Load game</button>
+            <button type="button" id="tool-reset" class="button">Reset</button>
+            <button type="button" id="tool-previous" class="button">Previous</button>
+            <button type="button" id="tool-next" class="button">Next</button>
+            <button type="button" id="tool-swap-view" class="button">Swap View</button>
+            <button type="button" id="tool-put-piece" class="button">Put Piece</button>
           </div>
         </div>
-      </div>
-      <div class="stats">
-        <div>
-          White Pieces:
-          <span id="stats-pieces-white">0</span>
+        <div class="view-right">
+          <p>Moves:</p>
+          <div id="view-moves"></div>
         </div>
-        <div>
-          Black Pieces:
-          <span id="stats-pieces-black">0</span>
-        </div>
-        <div>
-          White Points:
-          <span id="stats-points-white">0</span>
-        </div>
-        <div>
-          Black Points:
-          <span id="stats-points-black">0</span>
-        </div>
-      </div>
-      <div class="tools">
-        <button type="button" id="tool-load-game" class="button">Load game</button>
-        <button type="button" id="tool-reset" class="button">Reset</button>
-        <button type="button" id="tool-previous" class="button">Previous</button>
-        <button type="button" id="tool-next" class="button">Next</button>
-        <button type="button" id="tool-swap-view" class="button">Swap View</button>
-        <button type="button" id="tool-put-piece" class="button">Put Piece</button>
       </div>
     </div>
   </body>
@@ -1314,6 +1341,19 @@
 
   <!-- App Reducer -->
   <script>
+    class P {
+      static letters = Array.from('abcdefgh') // x-axis
+      static numbers = Array.from('12345678').reverse() // y-axis
+
+      static parse(position) {
+        return { x: P.letters.indexOf(position[0]), y: P.numbers.indexOf(position[1]) }
+      }
+
+      static toString({ x, y }) {
+        return `${P.letters[x]}${P.numbers[y]}`
+      }
+    }
+
     /**
      * @typedef {Object} State
      * @property {HTMLElement | null} previousPiece
@@ -1325,8 +1365,6 @@
     const SWAP_VIEW = 'swap-view'
 
     class App {
-      static letters = Array.from('abcdefgh').reverse()
-
       constructor() {
         /** @type {State} */
         this.state = {
@@ -1388,6 +1426,7 @@
         boardView.startup()
         this.dispatch(act.reset())
         this.updateStats()
+        document.getElementById('view-moves').innerHTML = ''
       }
 
       updateStats() {
@@ -1424,8 +1463,6 @@
        */
       parseGame(content) {
         // BUG: chessLetters & chessNumbers are inverted
-        const letters = Array.from('abcdefgh') // x-axis
-        const numbers = Array.from('12345678').reverse() // y-axis
         const lines = content
           .split('\n')
           .map((it) => it.trim())
@@ -1439,23 +1476,14 @@
           if (line.startsWith('-')) break
           if (line.startsWith('put:')) {
             const [_, pieceName, pieceColor, position] = line.split(/\s+/)
-            result.push({
-              kind: 'put',
-              pieceName,
-              pieceColor,
-              x: letters.indexOf(position[0]),
-              y: numbers.indexOf(position[1]),
-            })
+            const p = P.parse(position)
+            result.push({ kind: 'put', pieceName, pieceColor, x: p.x, y: p.y })
           } else {
             const play = line.split(':')
             if (play.length !== 2) continue
-            result.push({
-              kind: 'move',
-              x1: letters.indexOf(play[0][0]),
-              y1: numbers.indexOf(play[0][1]),
-              x2: letters.indexOf(play[1][0]),
-              y2: numbers.indexOf(play[1][1]),
-            })
+            const p1 = P.parse(play[0])
+            const p2 = P.parse(play[1])
+            result.push({ kind: 'move', x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y })
           }
         }
         return result
@@ -1468,31 +1496,44 @@
         app.dispatch(act.setMoves(moves))
       }
 
+      appendMovement(movement) {
+        const moves = document.getElementById('view-moves')
+        const movementEl = document.createElement('div')
+        movementEl.innerText = movement
+        moves.appendChild(movementEl)
+      }
+
       applyMove(move) {
         switch (move.kind) {
           case 'move': {
             const { y1, x1, y2, x2 } = move
             const to = boardView.getSquare(y2, x2)
             const piece = boardView.getPiece(y1, x1)
+            const movement = `${P.toString({ x: x1, y: y1 })}:${P.toString({ x: x2, y: y2 })}`
             if (piece && to) {
-              console.log(`${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+              console.log(movement)
+              this.appendMovement(movement)
+
               boardView.move(piece, to)
               this.updateStats()
               return true
             } else {
-              console.log(`INVALID MOVE: ${App.letters[y1]}${x1 + 1}:${App.letters[y2]}${x2 + 1}`)
+              console.log(`INVALID MOVE: ${movement}`)
             }
             return false
           }
           case 'put': {
             const { pieceName, pieceColor, y, x } = move
             const squareElement = boardView.getSquare(y, x)
+            const movement = `put: ${pieceName} ${pieceColor} ${P.toString({ x, y })}`
             if (squareElement && PIECES_NAMES.includes(pieceName) && PIECES_COLORS.includes(pieceColor)) {
-              console.log(`put: ${pieceName} ${pieceColor} ${App.letters[y]}${x + 1}`)
+              console.log(movement)
               boardView.putPiece(pieceName, pieceColor, squareElement)
+
+              this.appendMovement(movement)
               return true
             } else {
-              console.log(`INVALID PUT PIECE: ${pieceName} ${pieceColor} ${App.letters[y]}${x + 1}`)
+              console.log(`INVALID PUT PIECE: ${movement}`)
               return false
             }
           }
