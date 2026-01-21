@@ -16,7 +16,7 @@
 
         --highlight-light: #f8f970;
         --highlight-dark: #bbce2f;
-      
+
         --colsize: 90px;
       }
 
@@ -736,12 +736,15 @@
             </div>
           </div>
           <div class="tools">
+            <button type="button" id="tool-put-piece" class="button">Put Piece</button>
             <button type="button" id="tool-load-game" class="button">Load game</button>
+            <button type="button" id="tool-swap-view" class="button">Swap View</button>
+          </div>
+          <div class="tools">
             <button type="button" id="tool-reset" class="button">Reset</button>
             <button type="button" id="tool-previous" class="button">Previous</button>
             <button type="button" id="tool-next" class="button">Next</button>
-            <button type="button" id="tool-swap-view" class="button">Swap View</button>
-            <button type="button" id="tool-put-piece" class="button">Put Piece</button>
+            <button type="button" id="tool-end" class="button">End</button>
           </div>
         </div>
         <div class="view-right">
@@ -860,12 +863,15 @@
         const move = (y, x) => canMove(y, x) && (result.push([y, x]), true)
         const capture = (y, x) => capturable(y, x) && (result.push([y, x]), true)
         const protect = (y, x) => protectable(y, x) && (result.push([y, x]), true)
+        const attack = (y, x) => this.view.get(y, x) && (result.push([y, x]), true)
+        attack.move = (y, x) => this.view.get(y, x) && (result.push([y, x]), true)
         return {
           canMove,
           move,
           capture,
           protect,
           result,
+          attack,
         }
       }
 
@@ -877,8 +883,8 @@
       _getOccupations(y, x, kind) {
         const piece = this.getPiece(y, x)
         if (!piece) return
-        const { protect, capture, canMove, result } = this._getHelpers(piece)
-        const move = { protect, capture }[kind]
+        const { protect, capture, attack, canMove, result } = this._getHelpers(piece)
+        const move = { protect, capture, attack }[kind]
         if (!move) throw new Error(kind)
 
         switch (piece[0]) {
@@ -899,6 +905,7 @@
               let k = 1
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
+                if (move.move) move.move(y + j * k, x + i * k)
               }
               move(y + j * k, x + i * k)
             })
@@ -906,6 +913,7 @@
               let k = 1
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
+                if (move.move) move.move(y + j * k, x + i * k)
               }
               move(y + j * k, x + i * k)
             })
@@ -916,6 +924,7 @@
               let k = 1
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
+                if (move.move) move.move(y + j * k, x + i * k)
               }
               move(y + j * k, x + i * k)
             })
@@ -926,6 +935,7 @@
               let k = 1
               for (; k < 8; k++) {
                 if (!canMove(y + j * k, x + i * k)) break
+                if (move.move) move.move(y + j * k, x + i * k)
               }
               move(y + j * k, x + i * k)
             })
@@ -939,6 +949,15 @@
           }
         }
         return result
+      }
+
+      /**
+       * @param {number} y
+       * @param {number} x
+       * @returns {[number, number][]}
+       */
+      getAttack(y, x) {
+        return this._getOccupations(y, x, 'attack')
       }
 
       /**
@@ -1284,6 +1303,26 @@
         const possibleMoves = new Set(chessMoves.getMoves(y, x).map((it) => it.toString()))
         const possibleCaptures = new Set(chessMoves.getCaptures(y, x).map((it) => it.toString()))
         const possibleProtects = new Set(chessMoves.getProtects(y, x).map((it) => it.toString()))
+        {
+          // filter king moves
+          const piece = chessMoves.getPiece(y, x)
+          if (piece[0] === 'K') {
+            for (let yy = 0; yy < 8; yy++) {
+              for (let xx = 0; xx < 8; xx++) {
+                if (yy === y && xx == x) continue
+
+                const otherPiece = chessMoves.getPiece(yy, xx)
+                if (!otherPiece) continue
+                if (otherPiece[1] === piece[1]) continue
+
+                const attacks = chessMoves.getAttack(yy, xx).map((p) => p.toString())
+                attacks.forEach((p) => possibleMoves.delete(p.toString()))
+                attacks.forEach((p) => possibleCaptures.delete(p.toString()))
+                attacks.forEach((p) => possibleProtects.delete(p.toString()))
+              }
+            }
+          }
+        }
         document.querySelectorAll('.board__square--attacked').forEach((el) => {
           el.classList.remove('board__square--attacked')
         })
@@ -1381,6 +1420,8 @@
 
         document.getElementById('tool-reset').addEventListener('click', () => this.reset())
 
+        document.getElementById('tool-end').addEventListener('click', () => this.runAllMoves())
+
         document.getElementById('tool-swap-view').addEventListener('click', () => this.swapDirections())
 
         document.getElementById('tool-put-piece').addEventListener('click', () => this.putPiece())
@@ -1408,10 +1449,11 @@
 
         this.updateStats()
 
-        this.loadGame('./games/003.txt').then(() => {
-          this.state.moves.forEach(() => app.dispatch(act.next()))
-          console.error('complete')
-        })
+        // this.loadGame('./games/003.txt')
+      }
+
+      runAllMoves() {
+        this.state.moves.forEach(() => app.dispatch(act.next()))
       }
 
       swapDirections() {
@@ -1581,7 +1623,13 @@
           case 'move': {
             const [y1, x1] = boardView.getPiecePosition(action.piece)
             const [y2, x2] = boardView.getSquarePosition(action.to)
-            return this.reducer(state, act.moveRelative({ kind: 'move', y1, x1, y2, x2 }))
+            // TODO: add do and undo logic
+            const move = { kind: 'move', y1, x1, y2, x2 }
+            let nextState = state
+            if (state.current === state.moves.length) {
+              nextState = { ...state, moves: [...state.moves, move], current: state.current + 1 }
+            }
+            return this.reducer(nextState, act.moveRelative(move))
           }
           case 'move-relative': {
             if (this.applyMove(action.move)) {
